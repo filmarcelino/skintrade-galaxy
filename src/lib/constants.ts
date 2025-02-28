@@ -1,4 +1,3 @@
-
 export type LanguageCode = 'en' | 'es' | 'pt-br';
 
 export const LANGUAGES = {
@@ -170,6 +169,7 @@ export const SAMPLE_SKINS = [
     currentPrice: 1560.75,
     profitLoss: 310.25,
     trend: 'up',
+    popularity: 'high'
   },
   {
     id: 2,
@@ -181,6 +181,7 @@ export const SAMPLE_SKINS = [
     currentPrice: 94.50,
     profitLoss: 7.20,
     trend: 'up',
+    popularity: 'medium'
   },
   {
     id: 3,
@@ -192,6 +193,7 @@ export const SAMPLE_SKINS = [
     currentPrice: 1120.00,
     profitLoss: 145.00,
     trend: 'up',
+    popularity: 'high'
   },
   {
     id: 4,
@@ -203,6 +205,7 @@ export const SAMPLE_SKINS = [
     currentPrice: 405.50,
     profitLoss: -24.50,
     trend: 'down',
+    popularity: 'medium'
   },
   {
     id: 5,
@@ -214,5 +217,6 @@ export const SAMPLE_SKINS = [
     currentPrice: 2340.00,
     profitLoss: 450.00,
     trend: 'up',
+    popularity: 'high'
   },
 ];

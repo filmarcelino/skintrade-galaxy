@@ -1,14 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2, Plus, Zap, Loader, TrendingUp, TrendingDown, AlertCircle, X } from 'lucide-react';
 import { SAMPLE_SKINS } from '@/lib/constants';
-import { useTranslation } from '@/lib/i18n';
+import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 
 // Define the component as a function
 const TradeEvaluator = () => {
-  const { t } = useTranslation();
+  const { t } = useI18n();
   const [yourItems, setYourItems] = useState([]);
   const [theirItems, setTheirItems] = useState([]);
   const [loadedImages, setLoadedImages] = useState({});
@@ -73,6 +72,7 @@ const TradeEvaluator = () => {
     const selectedSkin = SAMPLE_SKINS.find(skin => skin.id === id);
     if (!selectedSkin) return;
 
+    // Create a custom version of the skin with the properties we need
     const newItem = {
       id: selectedSkin.id,
       name: selectedSkin.name,
