@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Zap } from 'lucide-react';
+import { Plus, Trash2, Zap, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SAMPLE_SKINS } from '@/lib/constants';
 

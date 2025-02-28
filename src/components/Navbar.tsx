@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Menu, Steam, X } from 'lucide-react';
+import { ChevronDown, Menu, LogIn, X } from 'lucide-react';
 
 const Navbar = () => {
   const { t } = useI18n();
@@ -51,7 +51,7 @@ const Navbar = () => {
             variant="outline" 
             className="hidden md:flex items-center gap-2 bg-white/5 border-white/10 hover:bg-white/10 text-white"
           >
-            <Steam size={16} />
+            <LogIn size={16} />
             {t('login')}
           </Button>
           
@@ -80,7 +80,7 @@ const Navbar = () => {
               variant="outline" 
               className="w-full flex items-center justify-center gap-2 bg-white/5 border-white/10 hover:bg-white/10 text-white"
             >
-              <Steam size={16} />
+              <LogIn size={16} />
               {t('login')}
             </Button>
           </div>
