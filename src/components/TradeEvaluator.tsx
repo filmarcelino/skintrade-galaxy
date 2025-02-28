@@ -33,14 +33,11 @@ const TradeEvaluator = () => {
   const fetchSteamMarketData = async (appId: string, marketHashName: string) => {
     try {
       const encodedName = encodeURIComponent(marketHashName);
-      const endpoint = `ISteamEconomy/GetAssetPrices/v1`;
       
       const { data, error } = await supabase.functions.invoke('steam-api', {
         body: { 
-          endpoint, 
-          appid: appId,
-          currency: 'BRL',
-          market_hash_name: encodedName
+          market_hash_name: encodedName,
+          appid: appId
         }
       });
 
@@ -49,6 +46,7 @@ const TradeEvaluator = () => {
         return null;
       }
 
+      console.log('Dados recebidos da API:', data);
       return data;
     } catch (error) {
       console.error('Erro ao buscar dados do mercado:', error);
@@ -58,15 +56,42 @@ const TradeEvaluator = () => {
 
   const enrichItemWithMarketData = async (item: TradeItem): Promise<TradeItem> => {
     try {
-      // Simular dados de mercado para o item
-      // Em uma implementação real, usaríamos a API do Steam
-      const randomTrend = Math.random();
-      const randomPopularity = Math.random();
+      // Tentar buscar dados reais do mercado para este item
+      const marketData = await fetchSteamMarketData('730', item.name);
+      
+      let marketTrend: 'up' | 'down' | 'stable' = 'stable';
+      let popularity: 'high' | 'medium' | 'low' = 'medium';
+      
+      // Se temos dados reais, vamos usá-los
+      if (marketData && marketData.items && marketData.items[item.name]) {
+        const itemData = marketData.items[item.name];
+        
+        // Determinar tendência com base nos preços em 24h ou 7d
+        if (itemData.price_change_24h > 0) {
+          marketTrend = 'up';
+        } else if (itemData.price_change_24h < 0) {
+          marketTrend = 'down';
+        }
+        
+        // Determinar popularidade com base no volume
+        if (itemData.volume > 100) {
+          popularity = 'high';
+        } else if (itemData.volume < 20) {
+          popularity = 'low';
+        }
+      } else {
+        // Fallback para dados simulados se não conseguimos obter dados reais
+        const randomTrend = Math.random();
+        const randomPopularity = Math.random();
+        
+        marketTrend = randomTrend > 0.66 ? 'up' : (randomTrend > 0.33 ? 'stable' : 'down');
+        popularity = randomPopularity > 0.66 ? 'high' : (randomPopularity > 0.33 ? 'medium' : 'low');
+      }
       
       return {
         ...item,
-        marketTrend: randomTrend > 0.66 ? 'up' : (randomTrend > 0.33 ? 'stable' : 'down'),
-        popularity: randomPopularity > 0.66 ? 'high' : (randomPopularity > 0.33 ? 'medium' : 'low'),
+        marketTrend,
+        popularity,
       };
     } catch (error) {
       console.error('Erro ao enriquecer item com dados de mercado:', error);

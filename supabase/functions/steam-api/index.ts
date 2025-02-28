@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    // Obter a chave da API do Steam das variáveis de ambiente
+    // Obter a chave da API do steamwebapi.com das variáveis de ambiente
     const steamApiKey = Deno.env.get('STEAM_API_KEY');
     if (!steamApiKey) {
       throw new Error('Chave da API do Steam não encontrada');
@@ -23,33 +23,22 @@ serve(async (req) => {
 
     // Obter parâmetros do corpo da requisição
     const requestData = await req.json();
-    const { endpoint, ...params } = requestData;
+    const { endpoint, market_hash_name, appid } = requestData;
     
-    if (!endpoint) {
-      throw new Error('Endpoint não especificado');
+    if (!market_hash_name || !appid) {
+      throw new Error('Parâmetros necessários não especificados');
     }
 
-    // Construir os parâmetros da URL
-    const urlParams = new URLSearchParams();
+    // Para steamwebapi.com, a URL é diferente da API oficial da Steam
+    const steamWebApiUrl = `https://api.steamwebapi.com/market/item-prices/${appid}?key=${steamApiKey}&items=${encodeURIComponent(market_hash_name)}`;
     
-    // Adicionar todos os parâmetros recebidos
-    Object.entries(params).forEach(([key, value]) => {
-      urlParams.append(key, String(value));
-    });
+    console.log(`Fazendo requisição para: ${steamWebApiUrl}`);
     
-    // Adicionar a chave da API aos parâmetros
-    urlParams.append('key', steamApiKey);
-    
-    // Construir a URL da API do Steam
-    const steamApiUrl = `https://api.steampowered.com/${endpoint}?${urlParams}`;
-    
-    console.log(`Fazendo requisição para: ${steamApiUrl}`);
-    
-    // Fazer a requisição à API do Steam
-    const response = await fetch(steamApiUrl);
+    // Fazer a requisição à API do SteamWebAPI
+    const response = await fetch(steamWebApiUrl);
     
     if (!response.ok) {
-      throw new Error(`Erro na API do Steam: ${response.statusText}`);
+      throw new Error(`Erro na API: ${response.statusText}`);
     }
     
     const data = await response.json();
@@ -62,7 +51,7 @@ serve(async (req) => {
       },
     });
   } catch (error) {
-    console.error('Erro ao acessar a API do Steam:', error);
+    console.error('Erro ao acessar a API:', error);
     
     // Retornar erro com os cabeçalhos CORS
     return new Response(JSON.stringify({ error: error.message }), {
