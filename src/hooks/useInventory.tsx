@@ -49,9 +49,19 @@ export const useInventory = () => {
   }, []);
   
   const queryFn = async (): Promise<Skin[]> => {
-    return isUsingDemoData 
-      ? Promise.resolve(SAMPLE_SKINS) 
-      : fetchUserSkins();
+    if (isUsingDemoData) {
+      // Ensure SAMPLE_SKINS conforms to Skin type with correct trend handling
+      return Promise.resolve(SAMPLE_SKINS.map(skin => ({
+        ...skin,
+        trend: skin.trend as 'up' | 'down' | null
+      })));
+    } else {
+      const data = await fetchUserSkins();
+      return data.map(skin => ({
+        ...skin,
+        trend: skin.trend as 'up' | 'down' | null
+      }));
+    }
   };
   
   const { 
@@ -266,7 +276,8 @@ export const useInventory = () => {
       purchase_price: newSkinData.purchase_price,
       current_price: newSkinData.current_price,
       image: newSkinData.image || 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhLsvQz/130fx97f/image.png',
-      notes: newSkinData.notes
+      notes: newSkinData.notes,
+      trend: 'up' // Ensure trend is explicitly set to an allowed value
     });
   };
   

@@ -1,3 +1,4 @@
+
 export type LanguageCode = 'en' | 'es' | 'pt-br';
 
 export const LANGUAGES = {
@@ -157,7 +158,7 @@ export const TRANSLATIONS: Translations = {
   },
 };
 
-// Export the sample skins data with both new and legacy property names
+// Export the sample skins data with both new and legacy property names and proper trend typing
 export const SAMPLE_SKINS = [
   {
     id: 1,
@@ -182,11 +183,14 @@ export const SAMPLE_SKINS = [
     wear: "Field-Tested",
     purchase_price: 750,
     current_price: 685.25,
+    purchasePrice: 750,
+    currentPrice: 685.25,
     profitLoss: -64.75,
     image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqPL5NqnEk29u5cB1g_zMu9zx0FHg_hY-YWr0I4SQJwM-ZAqE_lS3k-jmgZC4uJrMzHA3siZ0s3nUzwv3308Za-dsm7XAHnW9Vj5c",
-    trend: "down",
+    trend: "down" as const,
     acquired_at: "2023-04-22",
-    notes: "Good sticker placement"
+    notes: "Good sticker placement",
+    popularity: "Medium"
   },
   {
     id: 3,
@@ -195,11 +199,14 @@ export const SAMPLE_SKINS = [
     wear: "Factory New",
     purchase_price: 1800,
     current_price: 2340.50,
+    purchasePrice: 1800,
+    currentPrice: 2340.50,
     profitLoss: 540.50,
     image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqPL5NqnEk29u5cB1g_zMu9zx0FHg_hY-YWr0I4SQJwM-ZAqE_lS3k-jmgZC4uJrMzHA3siZ0s3nUzwv3308Za-dsm7XAHnW9Vj5c",
-    trend: "up",
+    trend: "up" as const,
     acquired_at: "2023-05-03",
-    notes: "95% fade pattern - 0.03 float value"
+    notes: "95% fade pattern - 0.03 float value",
+    popularity: "High"
   },
   {
     id: 4,
@@ -207,12 +214,15 @@ export const SAMPLE_SKINS = [
     float: "0.0710",
     wear: "Minimal Wear",
     purchase_price: 3100,
-    current_price: 3520.25, 
+    current_price: 3520.25,
+    purchasePrice: 3100,
+    currentPrice: 3520.25,
     profitLoss: 420.25,
-    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09--m5CbkuXLMLrdmlRd4cJ5nqeUpoqs0Aaw_0VlZW_7I9CQcVU8YVnQ8lO7lOjt15S1tZWczHVi7yAn-z-DyPKUvH6D",
-    trend: "up",
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09--m5CbkuXLMLrdmlRd4cJ5nqeUpoqs0Aaw_0VlZW_7I9CQcVU8YVnQ8lO7lOjt15S1tZWczHVi7yA",
+    trend: "up" as const,
     acquired_at: "2023-03-11",
-    notes: "Contraband item - discontinued"
+    notes: "Contraband item - discontinued",
+    popularity: "High"
   },
   {
     id: 5,
@@ -221,10 +231,13 @@ export const SAMPLE_SKINS = [
     wear: "Factory New",
     purchase_price: 570,
     current_price: 675.50,
+    purchasePrice: 570,
+    currentPrice: 675.50,
     profitLoss: 105.50,
     image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0uL3cy9D_8-JnIWKge66YrrQwGpTsZ0m27DMm4qsixji-UFlZWryZ9eVIwE2ZF6D_gK3w-_v0Z_p7snXiSw0QsSV2p8",
-    trend: "up",
+    trend: "up" as const,
     acquired_at: "2023-01-24",
-    notes: "Full fade with good float"
+    notes: "Full fade with good float",
+    popularity: "High"
   }
 ];
