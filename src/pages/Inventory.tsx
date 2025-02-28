@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { I18nProvider, useI18n } from '@/lib/i18n';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -61,8 +61,8 @@ const Inventory = () => {
   });
   const [actionType, setActionType] = useState<'add' | 'sell'>('add');
   
-  // Pre-load images
-  useState(() => {
+  // Pre-load images - fixed this from useState to useEffect
+  useEffect(() => {
     SAMPLE_SKINS.forEach(skin => {
       const img = new Image();
       img.onload = () => {
@@ -73,7 +73,7 @@ const Inventory = () => {
       };
       img.src = skin.image;
     });
-  });
+  }, []);
   
   const filteredSkins = SAMPLE_SKINS.filter(skin => 
     skin.name.toLowerCase().includes(searchQuery.toLowerCase())
