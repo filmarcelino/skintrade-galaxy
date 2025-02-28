@@ -14,12 +14,16 @@ export const fetchUserSkins = async (): Promise<Skin[]> => {
     throw error;
   }
 
-  // Calculate profit/loss for each skin
+  // Calculate profit/loss for each skin and add backward compatibility fields
   return data.map(skin => ({
     ...skin,
     profitLoss: skin.current_price - skin.purchase_price,
     // Ensure trend is either 'up', 'down', or null
-    trend: skin.trend as 'up' | 'down' | null
+    trend: skin.trend as 'up' | 'down' | null,
+    // Add backward compatibility fields
+    purchasePrice: skin.purchase_price,
+    currentPrice: skin.current_price,
+    popularity: 'High' // Default value for TradeEvaluator
   }));
 };
 
@@ -46,7 +50,10 @@ export const addSkin = async (skin: Omit<Skin, 'id' | 'user_id' | 'created_at' |
   return {
     ...data,
     profitLoss: data.current_price - data.purchase_price,
-    trend: data.trend as 'up' | 'down' | null
+    trend: data.trend as 'up' | 'down' | null,
+    purchasePrice: data.purchase_price,
+    currentPrice: data.current_price,
+    popularity: 'High' // Default value
   };
 };
 
@@ -66,7 +73,10 @@ export const updateSkin = async (id: number, skin: Partial<Skin>): Promise<Skin>
   return {
     ...data,
     profitLoss: data.current_price - data.purchase_price,
-    trend: data.trend as 'up' | 'down' | null
+    trend: data.trend as 'up' | 'down' | null,
+    purchasePrice: data.purchase_price,
+    currentPrice: data.current_price,
+    popularity: 'High' // Default value
   };
 };
 

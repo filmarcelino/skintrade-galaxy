@@ -14,6 +14,11 @@ export interface Skin {
   created_at?: string;
   updated_at?: string;
   profitLoss?: number; // calculated field
+  
+  // For backward compatibility with existing components
+  purchasePrice?: number; 
+  currentPrice?: number;
+  popularity?: string; // Added for TradeEvaluator.tsx
 }
 
 export interface Transaction {

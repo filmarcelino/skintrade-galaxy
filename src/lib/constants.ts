@@ -157,71 +157,74 @@ export const TRANSLATIONS: Translations = {
   },
 };
 
-// Example skin data for the table
+// Export the sample skins data with both new and legacy property names
 export const SAMPLE_SKINS = [
   {
     id: 1,
-    name: 'AWP | Dragon Lore',
-    float: '0.0089',
-    wear: 'Factory New',
-    purchase_price: 2500,
-    current_price: 4650.75,
-    profitLoss: 2150.75,
-    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17P7NdShR4tuzq4GIlPL6J6iEqWdF7ddOhuDG_Zi7jAW1_xBqMG_yIY_GJwc_ZQvT_1e5wefmjZ-5v5_BnSRqsnRwt3iOmB3kgEsaPOc-m7XAHpIXf31e',
-    trend: 'up',
-    acquired_at: '2023-06-15',
-    notes: 'Rare collector item, highly desired pattern'
+    name: "AWP | Dragon Lore",
+    float: "0.0132",
+    wear: "Factory New",
+    purchase_price: 1567.23,
+    current_price: 1895.00,
+    purchasePrice: 1567.23, // Legacy property
+    currentPrice: 1895.00,  // Legacy property
+    profitLoss: 327.77,
+    trend: "up" as const,
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhLsvQz/130fx97f/image.png",
+    acquired_at: "2023-06-08T12:00:00.000Z",
+    notes: "Rare skin from Operation Cobblestone",
+    popularity: "High"
   },
   {
     id: 2,
-    name: 'AK-47 | Fire Serpent',
-    float: '0.1523',
-    wear: 'Field-Tested',
+    name: "AK-47 | Fire Serpent",
+    float: "0.1523",
+    wear: "Field-Tested",
     purchase_price: 750,
     current_price: 685.25,
     profitLoss: -64.75,
-    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-3hpSOm8j4OrzZgiUFu8By27iT9NWm2VK1_EE-Y273cIOQdFQ-Nw2C_FPqwL--jJO9u8nXiSw0A9nbvQ',
-    trend: 'down',
-    acquired_at: '2023-04-22',
-    notes: 'Good sticker placement'
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqPL5NqnEk29u5cB1g_zMu9zx0FHg_hY-YWr0I4SQJwM-ZAqE_lS3k-jmgZC4uJrMzHA3siZ0s3nUzwv3308Za-dsm7XAHnW9Vj5c",
+    trend: "down",
+    acquired_at: "2023-04-22",
+    notes: "Good sticker placement"
   },
   {
     id: 3,
-    name: 'Butterfly Knife | Fade',
-    float: '0.0325',
-    wear: 'Factory New',
+    name: "Butterfly Knife | Fade",
+    float: "0.0325",
+    wear: "Factory New",
     purchase_price: 1800,
     current_price: 2340.50,
     profitLoss: 540.50,
-    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqPL5NqnEk29u5cB1g_zMu9zx0FHg_hY-YWr0I4SQJwM-ZAqE_lS3k-jmgZC4uJrMzHA3siZ0s3nUzwv3308Za-dsm7XAHnW9Vj5c',
-    trend: 'up',
-    acquired_at: '2023-05-03',
-    notes: '95% fade pattern - 0.03 float value'
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf0ebcZThQ6tCvq4GGqPL5NqnEk29u5cB1g_zMu9zx0FHg_hY-YWr0I4SQJwM-ZAqE_lS3k-jmgZC4uJrMzHA3siZ0s3nUzwv3308Za-dsm7XAHnW9Vj5c",
+    trend: "up",
+    acquired_at: "2023-05-03",
+    notes: "95% fade pattern - 0.03 float value"
   },
   {
     id: 4,
-    name: 'M4A4 | Howl',
-    float: '0.0710',
-    wear: 'Minimal Wear',
+    name: "M4A4 | Howl",
+    float: "0.0710",
+    wear: "Minimal Wear",
     purchase_price: 3100,
     current_price: 3520.25, 
     profitLoss: 420.25,
-    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09--m5CbkuXLMLrdmlRd4cJ5nqeUpoqs0Aaw_0VlZW_7I9CQcVU8YVnQ8lO7lOjt15S1tZWczHVi7yAn-z-DyPKUvH6D',
-    trend: 'up',
-    acquired_at: '2023-03-11',
-    notes: 'Contraband item - discontinued'
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09--m5CbkuXLMLrdmlRd4cJ5nqeUpoqs0Aaw_0VlZW_7I9CQcVU8YVnQ8lO7lOjt15S1tZWczHVi7yAn-z-DyPKUvH6D",
+    trend: "up",
+    acquired_at: "2023-03-11",
+    notes: "Contraband item - discontinued"
   },
   {
     id: 5,
-    name: 'Glock-18 | Fade',
-    float: '0.0103',
-    wear: 'Factory New',
+    name: "Glock-18 | Fade",
+    float: "0.0103",
+    wear: "Factory New",
     purchase_price: 570,
     current_price: 675.50,
     profitLoss: 105.50,
-    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0uL3cy9D_8-JnIWKge66YrrQwGpTsZ0m27DMm4qsixji-UFlZWryZ9eVIwE2ZF6D_gK3w-_v0Z_p7snXiSw0QsSV2p8',
-    trend: 'up',
-    acquired_at: '2023-01-24',
-    notes: 'Full fade with good float'
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0uL3cy9D_8-JnIWKge66YrrQwGpTsZ0m27DMm4qsixji-UFlZWryZ9eVIwE2ZF6D_gK3w-_v0Z_p7snXiSw0QsSV2p8",
+    trend: "up",
+    acquired_at: "2023-01-24",
+    notes: "Full fade with good float"
   }
 ];
