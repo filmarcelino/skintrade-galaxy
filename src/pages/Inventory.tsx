@@ -17,9 +17,10 @@ import {
   Clock,
   TrendingUp,
   TrendingDown,
-  DollarSign,
   Search,
-  Filter
+  Filter,
+  Edit,
+  DollarSign
 } from 'lucide-react';
 import {
   Dialog,
@@ -29,6 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
+  DialogClose
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -48,6 +50,16 @@ const Inventory = () => {
   const [selectedSkin, setSelectedSkin] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editSkinData, setEditSkinData] = useState<any>(null);
+  const [isAddSellDialogOpen, setIsAddSellDialogOpen] = useState(false);
+  const [newSkinData, setNewSkinData] = useState({
+    name: '',
+    float: '0.0000',
+    wear: 'Factory New',
+    purchasePrice: 0,
+    currentPrice: 0,
+    image: ''
+  });
+  const [actionType, setActionType] = useState<'add' | 'sell'>('add');
   
   // Pre-load images
   useState(() => {
@@ -69,7 +81,7 @@ const Inventory = () => {
   
   const totalValue = SAMPLE_SKINS.reduce((total, skin) => total + skin.currentPrice, 0);
   const totalProfit = SAMPLE_SKINS.reduce((total, skin) => total + skin.profitLoss, 0);
-  const profitPercentage = (totalProfit / totalValue) * 100;
+  const profitPercentage = totalValue > 0 ? (totalProfit / totalValue) * 100 : 0;
   
   const handleOpenSkinDetails = (skin: any) => {
     setSelectedSkin(skin);
@@ -107,6 +119,37 @@ const Inventory = () => {
     });
   };
   
+  const handleOpenAddSellDialog = (type: 'add' | 'sell') => {
+    setActionType(type);
+    setNewSkinData({
+      name: '',
+      float: '0.0000',
+      wear: 'Factory New',
+      purchasePrice: 0,
+      currentPrice: 0,
+      image: ''
+    });
+    setIsAddSellDialogOpen(true);
+  };
+  
+  const handleSaveNewSkin = () => {
+    if (actionType === 'add') {
+      toast({
+        title: "Skin Added",
+        description: `${newSkinData.name} has been added to your inventory`,
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Skin Sold",
+        description: `${newSkinData.name} has been sold from your inventory`,
+        variant: "default",
+      });
+    }
+    setIsAddSellDialogOpen(false);
+    // In a real app, this would update the database
+  };
+  
   const handleInspect = (skinName: string) => {
     toast({
       title: 'Inspect Weapon',
@@ -132,13 +175,19 @@ const Inventory = () => {
                 <p className="text-white/60">Manage your skins, track values, and analyze market trends</p>
               </div>
               <div className="flex items-center gap-3">
-                <Button className="bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 rounded-xl flex items-center gap-2">
+                <Button 
+                  className="bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 rounded-xl flex items-center gap-2"
+                  onClick={() => handleOpenAddSellDialog('add')}
+                >
                   <Plus size={18} />
                   Add Skin
                 </Button>
-                <Button className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl flex items-center gap-2">
+                <Button 
+                  className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl flex items-center gap-2"
+                  onClick={() => handleOpenAddSellDialog('sell')}
+                >
                   <ShoppingCart size={18} />
-                  Sell All
+                  Sell Skin
                 </Button>
               </div>
             </div>
@@ -368,7 +417,7 @@ const Inventory = () => {
                                 handleEditSkin(skin);
                               }}
                             >
-                              <Plus size={14} />
+                              <Edit size={14} />
                             </Button>
                             <Button 
                               size="sm" 
@@ -448,8 +497,12 @@ const Inventory = () => {
                     </Button>
                     <Button 
                       className="w-full bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 rounded-xl"
-                      onClick={() => handleEditSkin(selectedSkin)}
+                      onClick={() => {
+                        setSelectedSkin(null);
+                        handleEditSkin(selectedSkin);
+                      }}
                     >
+                      <Edit size={16} className="mr-2" />
                       Edit Details
                     </Button>
                     <Button 
@@ -505,7 +558,8 @@ const Inventory = () => {
                         return (
                           <div 
                             key={i} 
-                            className={`w-full h-[${height}%] ${
+                            style={{ height: `${height}%` }}
+                            className={`w-full ${
                               isCurrent ? 'bg-neon-blue' : 
                               selectedSkin.trend === 'up' ? 'bg-green-500/50' : 'bg-red-500/50'
                             } rounded-t-sm`}
@@ -612,6 +666,133 @@ const Inventory = () => {
                 onClick={handleSaveSkinEdit}
               >
                 Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Add/Sell Skin Dialog */}
+        <Dialog open={isAddSellDialogOpen} onOpenChange={setIsAddSellDialogOpen}>
+          <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl">
+            <DialogHeader>
+              <DialogTitle>{actionType === 'add' ? 'Add New Skin' : 'Sell Skin'}</DialogTitle>
+              <DialogDescription className="text-white/70">
+                {actionType === 'add' 
+                  ? 'Add a new skin to your inventory' 
+                  : 'Record the sale of a skin from your inventory'}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm text-white/70 block mb-2">Skin Name</label>
+                <Input 
+                  value={newSkinData.name}
+                  onChange={(e) => setNewSkinData({...newSkinData, name: e.target.value})}
+                  className="bg-black/20 border-white/10"
+                  placeholder="e.g. AWP | Dragon Lore"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-white/70 block mb-2">Float Value</label>
+                  <Input 
+                    value={newSkinData.float}
+                    onChange={(e) => setNewSkinData({...newSkinData, float: e.target.value})}
+                    className="bg-black/20 border-white/10"
+                    placeholder="0.0000"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-white/70 block mb-2">Wear</label>
+                  <Input 
+                    value={newSkinData.wear}
+                    onChange={(e) => setNewSkinData({...newSkinData, wear: e.target.value})}
+                    className="bg-black/20 border-white/10"
+                    placeholder="Factory New"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-white/70 block mb-2">
+                    {actionType === 'add' ? 'Purchase Price ($)' : 'Sale Price ($)'}
+                  </label>
+                  <Input 
+                    type="number"
+                    value={newSkinData.purchasePrice}
+                    onChange={(e) => setNewSkinData({...newSkinData, purchasePrice: parseFloat(e.target.value)})}
+                    className="bg-black/20 border-white/10"
+                    placeholder="0.00"
+                  />
+                </div>
+                {actionType === 'add' && (
+                  <div>
+                    <label className="text-sm text-white/70 block mb-2">Market Value ($)</label>
+                    <Input 
+                      type="number"
+                      value={newSkinData.currentPrice}
+                      onChange={(e) => setNewSkinData({...newSkinData, currentPrice: parseFloat(e.target.value)})}
+                      className="bg-black/20 border-white/10"
+                      placeholder="0.00"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              {actionType === 'add' && (
+                <div>
+                  <label className="text-sm text-white/70 block mb-2">Image URL (optional)</label>
+                  <Input 
+                    value={newSkinData.image}
+                    onChange={(e) => setNewSkinData({...newSkinData, image: e.target.value})}
+                    className="bg-black/20 border-white/10"
+                    placeholder="https://example.com/skin-image.png"
+                  />
+                </div>
+              )}
+              
+              <div>
+                <label className="text-sm text-white/70 block mb-2">
+                  {actionType === 'add' ? 'Acquisition Date' : 'Sale Date'}
+                </label>
+                <Input 
+                  type="date"
+                  className="bg-black/20 border-white/10"
+                />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAddSellDialogOpen(false)}
+                className="border-white/10"
+              >
+                Cancel
+              </Button>
+              <Button 
+                className={`
+                  ${actionType === 'add' 
+                    ? 'bg-neon-green/20 hover:bg-neon-green/40 border-neon-green/30' 
+                    : 'bg-neon-blue/20 hover:bg-neon-blue/40 border-neon-blue/30'
+                  } text-white border
+                `}
+                onClick={handleSaveNewSkin}
+              >
+                {actionType === 'add' ? (
+                  <>
+                    <Plus size={16} className="mr-2" />
+                    Add to Inventory
+                  </>
+                ) : (
+                  <>
+                    <DollarSign size={16} className="mr-2" />
+                    Record Sale
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
