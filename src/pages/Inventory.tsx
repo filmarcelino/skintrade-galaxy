@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { I18nProvider, useI18n } from '@/lib/i18n';
 import Navbar from '@/components/Navbar';
@@ -36,7 +35,6 @@ import SkinDetailModal from '@/components/SkinDetailModal';
 import AddSkinModal from '@/components/AddSkinModal';
 import SellSkinModal from '@/components/SellSkinModal';
 
-// Create a separate component for the inventory content to use the I18n context
 const InventoryContent = () => {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -49,7 +47,6 @@ const InventoryContent = () => {
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [skinToSell, setSkinToSell] = useState<Skin | null>(null);
   
-  // Pre-load images
   useEffect(() => {
     skins.forEach(skin => {
       const img = new Image();
@@ -470,7 +467,6 @@ const InventoryContent = () => {
         </div>
       </main>
       
-      {/* Skin Detail Modal */}
       <SkinDetailModal 
         skin={selectedSkin}
         isOpen={isDetailModalOpen}
@@ -479,14 +475,12 @@ const InventoryContent = () => {
         onDelete={handleDeleteSkin}
       />
 
-      {/* Add Skin Modal */}
       <AddSkinModal 
         isOpen={isAddSkinModalOpen}
         onClose={() => setIsAddSkinModalOpen(false)}
         onAddSkin={handleAddSkin}
       />
 
-      {/* Sell Skin Modal */}
       <SellSkinModal
         skin={skinToSell}
         isOpen={isSellModalOpen}
@@ -499,7 +493,6 @@ const InventoryContent = () => {
   );
 };
 
-// The main Inventory component now simply wraps the InventoryContent with I18nProvider
 const Inventory = () => {
   return (
     <I18nProvider>

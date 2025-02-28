@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Skin } from '@/lib/types';
 import { DollarSign } from 'lucide-react';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 interface SellSkinModalProps {
@@ -24,17 +25,23 @@ interface SellSkinModalProps {
 const SellSkinModal = ({ skin, isOpen, onClose, onSellSkin }: SellSkinModalProps) => {
   const { toast } = useToast();
   const [salePrice, setSalePrice] = useState(skin?.currentPrice || 0);
+  const [notes, setNotes] = useState(skin?.notes || '');
   const [confirmationStep, setConfirmationStep] = useState(false);
 
-  // Update sale price when skin changes
-  useState(() => {
+  // Update sale price and notes when skin changes
+  useEffect(() => {
     if (skin) {
       setSalePrice(skin.currentPrice);
+      setNotes(skin.notes || '');
     }
-  });
+  }, [skin]);
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSalePrice(parseFloat(e.target.value));
+  };
+
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNotes(e.target.value);
   };
 
   const handleSubmit = () => {
@@ -146,6 +153,16 @@ const SellSkinModal = ({ skin, isOpen, onClose, onSellSkin }: SellSkinModalProps
             </div>
             
             <div>
+              <label className="text-sm text-white/70 block mb-2">Notes</label>
+              <Textarea 
+                value={notes}
+                onChange={handleNotesChange}
+                className="bg-black/20 border-white/10 min-h-[80px]"
+                placeholder="Add any notes about this sale..."
+              />
+            </div>
+            
+            <div>
               <label className="text-sm text-white/70 block mb-2">Sale Date</label>
               <Input 
                 type="date"
@@ -176,6 +193,13 @@ const SellSkinModal = ({ skin, isOpen, onClose, onSellSkin }: SellSkinModalProps
                 {profit >= 0 ? 'Profit: +' : 'Loss: '}${Math.abs(profit).toFixed(2)} ({profitPercentage.toFixed(2)}%)
               </p>
             </div>
+            
+            {notes && (
+              <div className="bg-white/5 p-4 rounded-xl">
+                <h4 className="text-sm font-medium mb-2">Notes:</h4>
+                <p className="text-white/70 text-sm">{notes}</p>
+              </div>
+            )}
             
             <div className="bg-white/5 p-4 rounded-xl">
               <p className="text-white/70 text-sm">

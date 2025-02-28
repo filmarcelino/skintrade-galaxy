@@ -9,4 +9,5 @@ export interface Skin {
   profitLoss: number;
   trend: 'up' | 'down';
   image: string;
+  notes?: string;
 }

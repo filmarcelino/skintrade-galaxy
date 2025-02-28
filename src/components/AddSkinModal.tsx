@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 const wearOptions = ["Factory New", "Minimal Wear", "Field-Tested", "Well-Worn", "Battle-Scarred"];
@@ -30,10 +31,11 @@ const AddSkinModal = ({ isOpen, onClose, onAddSkin }: AddSkinModalProps) => {
     wear: 'Factory New',
     purchasePrice: 0,
     currentPrice: 0,
-    image: ''
+    image: '',
+    notes: ''
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: string) => {
     const value = e.target.type === 'number' 
       ? parseFloat(e.target.value) 
       : e.target.value;
@@ -75,7 +77,8 @@ const AddSkinModal = ({ isOpen, onClose, onAddSkin }: AddSkinModalProps) => {
       wear: 'Factory New',
       purchasePrice: 0,
       currentPrice: 0,
-      image: ''
+      image: '',
+      notes: ''
     });
     
     onClose();
@@ -160,6 +163,16 @@ const AddSkinModal = ({ isOpen, onClose, onAddSkin }: AddSkinModalProps) => {
               onChange={(e) => handleInputChange(e, 'image')}
               className="bg-black/20 border-white/10"
               placeholder="https://example.com/skin-image.png"
+            />
+          </div>
+          
+          <div>
+            <label className="text-sm text-white/70 block mb-2">Notes</label>
+            <Textarea 
+              value={newSkin.notes}
+              onChange={(e) => handleInputChange(e, 'notes')}
+              className="bg-black/20 border-white/10 min-h-[80px]"
+              placeholder="Add any notes about this skin..."
             />
           </div>
           
