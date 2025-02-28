@@ -1,1 +1,5 @@
+
 project_id = "lpxfsyyqnkbopcnaunea"
+
+[functions.steam-api]
+verify_jwt = false
