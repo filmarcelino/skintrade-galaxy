@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
@@ -35,14 +34,14 @@ const TradeEvaluator = () => {
     try {
       const encodedName = encodeURIComponent(marketHashName);
       const endpoint = `ISteamEconomy/GetAssetPrices/v1`;
-      const params = new URLSearchParams({
-        appid: appId,
-        currency: 'BRL',
-        market_hash_name: encodedName
-      });
-
+      
       const { data, error } = await supabase.functions.invoke('steam-api', {
-        query: { endpoint, ...Object.fromEntries(params) }
+        body: { 
+          endpoint, 
+          appid: appId,
+          currency: 'BRL',
+          market_hash_name: encodedName
+        }
       });
 
       if (error) {

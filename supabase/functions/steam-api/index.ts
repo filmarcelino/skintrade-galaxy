@@ -21,21 +21,27 @@ serve(async (req) => {
       throw new Error('Chave da API do Steam não encontrada');
     }
 
-    const url = new URL(req.url);
-    const endpoint = url.searchParams.get('endpoint');
+    // Obter parâmetros do corpo da requisição
+    const requestData = await req.json();
+    const { endpoint, ...params } = requestData;
     
     if (!endpoint) {
       throw new Error('Endpoint não especificado');
     }
 
-    // Remover o parâmetro endpoint para não duplicá-lo na URL da API
-    url.searchParams.delete('endpoint');
+    // Construir os parâmetros da URL
+    const urlParams = new URLSearchParams();
+    
+    // Adicionar todos os parâmetros recebidos
+    Object.entries(params).forEach(([key, value]) => {
+      urlParams.append(key, String(value));
+    });
     
     // Adicionar a chave da API aos parâmetros
-    url.searchParams.append('key', steamApiKey);
+    urlParams.append('key', steamApiKey);
     
     // Construir a URL da API do Steam
-    const steamApiUrl = `https://api.steampowered.com/${endpoint}?${url.searchParams}`;
+    const steamApiUrl = `https://api.steampowered.com/${endpoint}?${urlParams}`;
     
     console.log(`Fazendo requisição para: ${steamApiUrl}`);
     
