@@ -4,6 +4,7 @@ import { I18nProvider, useI18n } from '@/lib/i18n';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { SAMPLE_SKINS } from '@/lib/constants';
+import { Skin } from '@/lib/types';
 import { 
   ArrowDownIcon, 
   ArrowUpIcon, 
@@ -23,16 +24,6 @@ import {
   DollarSign
 } from 'lucide-react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose
-} from "@/components/ui/dialog";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -41,6 +32,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import SkinDetailModal from '@/components/SkinDetailModal';
+import AddSkinModal from '@/components/AddSkinModal';
+import SellSkinModal from '@/components/SellSkinModal';
 
 // Create a separate component for the inventory content to use the I18n context
 const InventoryContent = () => {
@@ -48,23 +42,16 @@ const InventoryContent = () => {
   const { toast } = useToast();
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSkin, setSelectedSkin] = useState<any>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editSkinData, setEditSkinData] = useState<any>(null);
-  const [isAddSellDialogOpen, setIsAddSellDialogOpen] = useState(false);
-  const [newSkinData, setNewSkinData] = useState({
-    name: '',
-    float: '0.0000',
-    wear: 'Factory New',
-    purchasePrice: 0,
-    currentPrice: 0,
-    image: ''
-  });
-  const [actionType, setActionType] = useState<'add' | 'sell'>('add');
+  const [skins, setSkins] = useState<Skin[]>([...SAMPLE_SKINS]);
+  const [selectedSkin, setSelectedSkin] = useState<Skin | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isAddSkinModalOpen, setIsAddSkinModalOpen] = useState(false);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+  const [skinToSell, setSkinToSell] = useState<Skin | null>(null);
   
-  // Pre-load images - fixed this from useState to useEffect
+  // Pre-load images
   useEffect(() => {
-    SAMPLE_SKINS.forEach(skin => {
+    skins.forEach(skin => {
       const img = new Image();
       img.onload = () => {
         setLoadedImages(prev => ({
@@ -74,42 +61,65 @@ const InventoryContent = () => {
       };
       img.src = skin.image;
     });
-  }, []);
+  }, [skins]);
   
-  const filteredSkins = SAMPLE_SKINS.filter(skin => 
+  const filteredSkins = skins.filter(skin => 
     skin.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
-  const totalValue = SAMPLE_SKINS.reduce((total, skin) => total + skin.currentPrice, 0);
-  const totalProfit = SAMPLE_SKINS.reduce((total, skin) => total + skin.profitLoss, 0);
+  const totalValue = skins.reduce((total, skin) => total + skin.currentPrice, 0);
+  const totalProfit = skins.reduce((total, skin) => total + skin.profitLoss, 0);
   const profitPercentage = totalValue > 0 ? (totalProfit / totalValue) * 100 : 0;
   
-  const handleOpenSkinDetails = (skin: any) => {
+  const handleOpenSkinDetails = (skin: Skin) => {
     setSelectedSkin(skin);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleAddSkin = (newSkinData: Omit<Skin, 'id' | 'profitLoss' | 'trend'>) => {
+    const newSkin: Skin = {
+      ...newSkinData,
+      id: Date.now(), // Simple ID generation for demo
+      profitLoss: newSkinData.currentPrice - newSkinData.purchasePrice,
+      trend: newSkinData.currentPrice >= newSkinData.purchasePrice ? 'up' : 'down'
+    };
+    
+    setSkins(prev => [...prev, newSkin]);
   };
   
-  const handleEditSkin = (skin: any) => {
-    setEditSkinData({...skin});
-    setIsEditDialogOpen(true);
+  const handleEditSkin = (updatedSkin: Skin) => {
+    // Update profitLoss and trend based on new values
+    const editedSkin = {
+      ...updatedSkin,
+      profitLoss: updatedSkin.currentPrice - updatedSkin.purchasePrice,
+      trend: updatedSkin.currentPrice >= updatedSkin.purchasePrice ? 'up' : 'down'
+    };
+    
+    setSkins(prev => 
+      prev.map(skin => skin.id === editedSkin.id ? editedSkin : skin)
+    );
+    
+    setSelectedSkin(editedSkin);
   };
   
   const handleDeleteSkin = (skinId: number) => {
+    setSkins(prev => prev.filter(skin => skin.id !== skinId));
+    
     toast({
       title: "Skin Deleted",
       description: "The skin has been removed from your inventory",
       variant: "default",
     });
-    // In a real app, this would delete from database
   };
   
-  const handleSaveSkinEdit = () => {
-    toast({
-      title: "Changes Saved",
-      description: "Your skin details have been updated",
-      variant: "default",
-    });
-    setIsEditDialogOpen(false);
-    // In a real app, this would update the database
+  const handleSellSkin = (skin: Skin) => {
+    setSkinToSell(skin);
+    setIsSellModalOpen(true);
+  };
+
+  const handleCompleteSale = (skinId: number, salePrice: number) => {
+    // Remove the skin from inventory after sale
+    setSkins(prev => prev.filter(skin => skin.id !== skinId));
   };
   
   const handleAddToTrade = (skinName: string) => {
@@ -118,37 +128,6 @@ const InventoryContent = () => {
       description: `${skinName} has been added to your trade offer`,
       variant: 'default',
     });
-  };
-  
-  const handleOpenAddSellDialog = (type: 'add' | 'sell') => {
-    setActionType(type);
-    setNewSkinData({
-      name: '',
-      float: '0.0000',
-      wear: 'Factory New',
-      purchasePrice: 0,
-      currentPrice: 0,
-      image: ''
-    });
-    setIsAddSellDialogOpen(true);
-  };
-  
-  const handleSaveNewSkin = () => {
-    if (actionType === 'add') {
-      toast({
-        title: "Skin Added",
-        description: `${newSkinData.name} has been added to your inventory`,
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: "Skin Sold",
-        description: `${newSkinData.name} has been sold from your inventory`,
-        variant: "default",
-      });
-    }
-    setIsAddSellDialogOpen(false);
-    // In a real app, this would update the database
   };
   
   const handleInspect = (skinName: string) => {
@@ -160,7 +139,7 @@ const InventoryContent = () => {
     // Simulate opening the inspection link
     setTimeout(() => {
       window.open(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(skinName)}`, '_blank');
-    }, 1000);
+    }, 500);
   };
 
   return (
@@ -177,14 +156,24 @@ const InventoryContent = () => {
             <div className="flex items-center gap-3">
               <Button 
                 className="bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 rounded-xl flex items-center gap-2"
-                onClick={() => handleOpenAddSellDialog('add')}
+                onClick={() => setIsAddSkinModalOpen(true)}
               >
                 <Plus size={18} />
                 Add Skin
               </Button>
               <Button 
                 className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl flex items-center gap-2"
-                onClick={() => handleOpenAddSellDialog('sell')}
+                onClick={() => {
+                  if (skins.length > 0) {
+                    handleSellSkin(skins[0]);
+                  } else {
+                    toast({
+                      title: "No skins available",
+                      description: "Add some skins to your inventory first",
+                      variant: "destructive",
+                    });
+                  }
+                }}
               >
                 <ShoppingCart size={18} />
                 Sell Skin
@@ -206,7 +195,7 @@ const InventoryContent = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-white/70">Total Items</span>
-                  <span className="font-mono text-neon-yellow">{SAMPLE_SKINS.length}</span>
+                  <span className="font-mono text-neon-yellow">{skins.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-white/70">Total Profit/Loss</span>
@@ -223,7 +212,7 @@ const InventoryContent = () => {
                 Best Performers
               </h2>
               <div className="space-y-4">
-                {SAMPLE_SKINS
+                {skins
                   .filter(skin => skin.profitLoss > 0)
                   .sort((a, b) => b.profitLoss - a.profitLoss)
                   .slice(0, 3)
@@ -242,7 +231,7 @@ const InventoryContent = () => {
                 Worst Performers
               </h2>
               <div className="space-y-4">
-                {SAMPLE_SKINS
+                {skins
                   .filter(skin => skin.profitLoss < 0)
                   .sort((a, b) => a.profitLoss - b.profitLoss)
                   .slice(0, 3)
@@ -368,6 +357,7 @@ const InventoryContent = () => {
                                   loadedImages[skin.id] ? 'opacity-100' : 'opacity-0'
                                 }`} 
                                 style={{ filter: 'drop-shadow(0 0 3px rgba(0, 212, 255, 0.5))' }}
+                                loading="lazy"
                               />
                             </div>
                           </div>
@@ -439,16 +429,31 @@ const InventoryContent = () => {
                             >
                               <DropdownMenuItem 
                                 className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2"
-                                onClick={() => handleInspect(skin.name)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleInspect(skin.name);
+                                }}
                               >
                                 <ExternalLink size={14} />
                                 Inspect in-game
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2">
+                              <DropdownMenuItem 
+                                className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSellSkin(skin);
+                                }}
+                              >
                                 <ShoppingCart size={14} />
                                 Sell Item
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2">
+                              <DropdownMenuItem 
+                                className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToTrade(skin.name);
+                                }}
+                              >
                                 <Plus size={14} />
                                 Add to Trade
                               </DropdownMenuItem>
@@ -466,337 +471,28 @@ const InventoryContent = () => {
       </main>
       
       {/* Skin Detail Modal */}
-      {selectedSkin && (
-        <Dialog open={Boolean(selectedSkin)} onOpenChange={(open) => !open && setSelectedSkin(null)}>
-          <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl max-w-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">{selectedSkin.name}</DialogTitle>
-              <DialogDescription className="text-white/70">
-                Detailed information about this skin
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="flex flex-col items-center justify-center col-span-1">
-                <div className="w-48 h-48 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-glow-lg mb-4">
-                  <img 
-                    src={selectedSkin.image} 
-                    alt={selectedSkin.name} 
-                    className="w-full h-full object-contain" 
-                    style={{ filter: 'drop-shadow(0 0 5px rgba(0, 212, 255, 0.7))' }}
-                  />
-                </div>
-                
-                <div className="space-y-2 w-full">
-                  <Button 
-                    className="w-full bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl"
-                    onClick={() => handleInspect(selectedSkin.name)}
-                  >
-                    <ExternalLink size={16} className="mr-2" />
-                    Inspect in-game
-                  </Button>
-                  <Button 
-                    className="w-full bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 rounded-xl"
-                    onClick={() => {
-                      setSelectedSkin(null);
-                      handleEditSkin(selectedSkin);
-                    }}
-                  >
-                    <Edit size={16} className="mr-2" />
-                    Edit Details
-                  </Button>
-                  <Button 
-                    className="w-full bg-neon-red/20 hover:bg-neon-red/40 text-white border border-neon-red/30 rounded-xl"
-                    onClick={() => {
-                      handleDeleteSkin(selectedSkin.id);
-                      setSelectedSkin(null);
-                    }}
-                  >
-                    <Trash2 size={16} className="mr-2" />
-                    Delete Skin
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="col-span-2 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white/5 p-4 rounded-xl">
-                    <div className="text-white/60 text-sm">Float Value</div>
-                    <div className="font-mono text-xl">{selectedSkin.float}</div>
-                  </div>
-                  <div className="bg-white/5 p-4 rounded-xl">
-                    <div className="text-white/60 text-sm">Wear</div>
-                    <div className="text-xl">{selectedSkin.wear}</div>
-                  </div>
-                  <div className="bg-white/5 p-4 rounded-xl">
-                    <div className="text-white/60 text-sm">Purchase Price</div>
-                    <div className="font-mono text-xl">${selectedSkin.purchasePrice.toFixed(2)}</div>
-                  </div>
-                  <div className="bg-white/5 p-4 rounded-xl">
-                    <div className="text-white/60 text-sm">Current Price</div>
-                    <div className="font-mono text-xl">${selectedSkin.currentPrice.toFixed(2)}</div>
-                  </div>
-                </div>
-                
-                <div className="bg-white/5 p-4 rounded-xl">
-                  <div className="text-white/60 text-sm">Profit/Loss</div>
-                  <div className={`font-mono text-2xl ${selectedSkin.profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {selectedSkin.profitLoss >= 0 ? '+' : ''}${selectedSkin.profitLoss.toFixed(2)} 
-                    <span className="text-sm ml-2">
-                      ({((selectedSkin.profitLoss / selectedSkin.purchasePrice) * 100).toFixed(2)}%)
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="bg-white/5 p-4 rounded-xl">
-                  <div className="text-white/60 text-sm mb-2">Price History (30 days)</div>
-                  <div className="h-24 flex items-end space-x-1">
-                    {/* Simple bar chart visualization */}
-                    {Array.from({ length: 30 }).map((_, i) => {
-                      const height = 30 + Math.random() * 70;
-                      const isCurrent = i === 29;
-                      return (
-                        <div 
-                          key={i} 
-                          style={{ height: `${height}%` }}
-                          className={`w-full ${
-                            isCurrent ? 'bg-neon-blue' : 
-                            selectedSkin.trend === 'up' ? 'bg-green-500/50' : 'bg-red-500/50'
-                          } rounded-t-sm`}
-                        ></div>
-                      );
-                    })}
-                  </div>
-                </div>
-                
-                <div className="bg-white/5 p-4 rounded-xl">
-                  <div className="text-white/60 text-sm">Additional Information</div>
-                  <div className="text-white">
-                    <p>Acquired on June 15, 2023</p>
-                    <p>Pattern Index: 661</p>
-                    <p>Stickers: None</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-      
-      {/* Edit Skin Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl">
-          <DialogHeader>
-            <DialogTitle>Edit Skin Details</DialogTitle>
-            <DialogDescription className="text-white/70">
-              Update information about your skin
-            </DialogDescription>
-          </DialogHeader>
-          
-          {editSkinData && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-white/70 block mb-2">Float Value</label>
-                  <Input 
-                    value={editSkinData.float}
-                    onChange={(e) => setEditSkinData({...editSkinData, float: e.target.value})}
-                    className="bg-black/20 border-white/10"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-white/70 block mb-2">Wear</label>
-                  <Input 
-                    value={editSkinData.wear}
-                    onChange={(e) => setEditSkinData({...editSkinData, wear: e.target.value})}
-                    className="bg-black/20 border-white/10"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-white/70 block mb-2">Purchase Price ($)</label>
-                  <Input 
-                    type="number"
-                    value={editSkinData.purchasePrice}
-                    onChange={(e) => setEditSkinData({...editSkinData, purchasePrice: parseFloat(e.target.value)})}
-                    className="bg-black/20 border-white/10"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-white/70 block mb-2">Current Price ($)</label>
-                  <Input 
-                    type="number"
-                    value={editSkinData.currentPrice}
-                    onChange={(e) => setEditSkinData({...editSkinData, currentPrice: parseFloat(e.target.value)})}
-                    className="bg-black/20 border-white/10"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm text-white/70 block mb-2">Acquisition Date</label>
-                <Input 
-                  type="date"
-                  className="bg-black/20 border-white/10"
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm text-white/70 block mb-2">Notes</label>
-                <Input 
-                  className="bg-black/20 border-white/10"
-                  placeholder="Add any additional notes about this skin"
-                />
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditDialogOpen(false)}
-              className="border-white/10"
-            >
-              Cancel
-            </Button>
-            <Button 
-              className="bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30"
-              onClick={handleSaveSkinEdit}
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Add/Sell Skin Dialog */}
-      <Dialog open={isAddSellDialogOpen} onOpenChange={setIsAddSellDialogOpen}>
-        <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl">
-          <DialogHeader>
-            <DialogTitle>{actionType === 'add' ? 'Add New Skin' : 'Sell Skin'}</DialogTitle>
-            <DialogDescription className="text-white/70">
-              {actionType === 'add' 
-                ? 'Add a new skin to your inventory' 
-                : 'Record the sale of a skin from your inventory'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm text-white/70 block mb-2">Skin Name</label>
-              <Input 
-                value={newSkinData.name}
-                onChange={(e) => setNewSkinData({...newSkinData, name: e.target.value})}
-                className="bg-black/20 border-white/10"
-                placeholder="e.g. AWP | Dragon Lore"
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-white/70 block mb-2">Float Value</label>
-                <Input 
-                  value={newSkinData.float}
-                  onChange={(e) => setNewSkinData({...newSkinData, float: e.target.value})}
-                  className="bg-black/20 border-white/10"
-                  placeholder="0.0000"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-white/70 block mb-2">Wear</label>
-                <Input 
-                  value={newSkinData.wear}
-                  onChange={(e) => setNewSkinData({...newSkinData, wear: e.target.value})}
-                  className="bg-black/20 border-white/10"
-                  placeholder="Factory New"
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-white/70 block mb-2">
-                  {actionType === 'add' ? 'Purchase Price ($)' : 'Sale Price ($)'}
-                </label>
-                <Input 
-                  type="number"
-                  value={newSkinData.purchasePrice}
-                  onChange={(e) => setNewSkinData({...newSkinData, purchasePrice: parseFloat(e.target.value)})}
-                  className="bg-black/20 border-white/10"
-                  placeholder="0.00"
-                />
-              </div>
-              {actionType === 'add' && (
-                <div>
-                  <label className="text-sm text-white/70 block mb-2">Market Value ($)</label>
-                  <Input 
-                    type="number"
-                    value={newSkinData.currentPrice}
-                    onChange={(e) => setNewSkinData({...newSkinData, currentPrice: parseFloat(e.target.value)})}
-                    className="bg-black/20 border-white/10"
-                    placeholder="0.00"
-                  />
-                </div>
-              )}
-            </div>
-            
-            {actionType === 'add' && (
-              <div>
-                <label className="text-sm text-white/70 block mb-2">Image URL (optional)</label>
-                <Input 
-                  value={newSkinData.image}
-                  onChange={(e) => setNewSkinData({...newSkinData, image: e.target.value})}
-                  className="bg-black/20 border-white/10"
-                  placeholder="https://example.com/skin-image.png"
-                />
-              </div>
-            )}
-            
-            <div>
-              <label className="text-sm text-white/70 block mb-2">
-                {actionType === 'add' ? 'Acquisition Date' : 'Sale Date'}
-              </label>
-              <Input 
-                type="date"
-                className="bg-black/20 border-white/10"
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsAddSellDialogOpen(false)}
-              className="border-white/10"
-            >
-              Cancel
-            </Button>
-            <Button 
-              className={`
-                ${actionType === 'add' 
-                  ? 'bg-neon-green/20 hover:bg-neon-green/40 border-neon-green/30' 
-                  : 'bg-neon-blue/20 hover:bg-neon-blue/40 border-neon-blue/30'
-                } text-white border
-              `}
-              onClick={handleSaveNewSkin}
-            >
-              {actionType === 'add' ? (
-                <>
-                  <Plus size={16} className="mr-2" />
-                  Add to Inventory
-                </>
-              ) : (
-                <>
-                  <DollarSign size={16} className="mr-2" />
-                  Record Sale
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <SkinDetailModal 
+        skin={selectedSkin}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        onEdit={handleEditSkin}
+        onDelete={handleDeleteSkin}
+      />
+
+      {/* Add Skin Modal */}
+      <AddSkinModal 
+        isOpen={isAddSkinModalOpen}
+        onClose={() => setIsAddSkinModalOpen(false)}
+        onAddSkin={handleAddSkin}
+      />
+
+      {/* Sell Skin Modal */}
+      <SellSkinModal
+        skin={skinToSell}
+        isOpen={isSellModalOpen}
+        onClose={() => setIsSellModalOpen(false)}
+        onSellSkin={handleCompleteSale}
+      />
       
       <Footer />
     </div>
