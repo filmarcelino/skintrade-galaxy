@@ -60,7 +60,7 @@ const CreditDisplay = () => {
   };
 
   return (
-    <div className="glass-card p-6 animate-fade-in">
+    <div className="glass-card p-6 animate-fade-in rounded-xl">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <Zap size={20} className="text-neon-yellow" />
@@ -75,12 +75,12 @@ const CreditDisplay = () => {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button 
-              className="bg-white/10 hover:bg-white/15 text-white border border-white/10"
+              className="bg-white/10 hover:bg-white/15 text-white border border-white/10 rounded-xl"
             >
               <Plus size={16} className="mr-2" /> {t('buyCredits')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-[#14141f] border border-white/10 text-white">
+          <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl">
             <DialogHeader>
               <DialogTitle>Buy AI Credits</DialogTitle>
               <DialogDescription className="text-white/70">
@@ -92,7 +92,7 @@ const CreditDisplay = () => {
               {[10, 20, 50].map(amount => (
                 <button
                   key={amount}
-                  className={`p-3 rounded-lg border text-center transition-all ${
+                  className={`p-3 rounded-xl border text-center transition-all ${
                     selectedAmount === amount 
                       ? 'border-neon-blue bg-neon-blue/10 text-white' 
                       : 'border-white/10 bg-black/20 text-white/70 hover:bg-black/30'
@@ -107,7 +107,7 @@ const CreditDisplay = () => {
             
             <DialogFooter>
               <Button 
-                className="neon-button w-full"
+                className="neon-button w-full rounded-xl"
                 onClick={handleBuyCredits}
               >
                 Buy {selectedAmount} Credits for ${(selectedAmount * 0.10).toFixed(2)}
@@ -117,7 +117,7 @@ const CreditDisplay = () => {
         </Dialog>
         
         <Button 
-          className="neon-button"
+          className="neon-button rounded-xl"
           onClick={handleUseCredit}
         >
           <Zap size={16} className="mr-2" /> {t('analyzeMarket')}

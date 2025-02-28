@@ -83,7 +83,7 @@ const TradeEvaluator = () => {
   };
 
   return (
-    <div className="glass-card p-6 animate-fade-in">
+    <div className="glass-card p-6 animate-fade-in rounded-xl">
       <div className="flex items-center gap-2 mb-6">
         <h2 className="text-xl font-semibold">{t('tradeEvaluator')}</h2>
       </div>
@@ -98,7 +98,7 @@ const TradeEvaluator = () => {
             </div>
           </div>
           
-          <div className="bg-black/20 border border-white/10 rounded-lg min-h-52 p-4">
+          <div className="bg-black/20 border border-white/10 rounded-xl min-h-52 p-4">
             {yourItems.length === 0 ? (
               <div className="h-full flex items-center justify-center text-white/50">
                 No items added
@@ -106,9 +106,9 @@ const TradeEvaluator = () => {
             ) : (
               <div className="grid grid-cols-1 gap-2">
                 {yourItems.map(item => (
-                  <div key={item.id} className="flex items-center justify-between bg-black/30 rounded-md p-2">
+                  <div key={item.id} className="flex items-center justify-between bg-black/30 rounded-xl p-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-black/50 rounded-md overflow-hidden flex items-center justify-center">
+                      <div className="w-10 h-10 bg-black/50 rounded-lg overflow-hidden flex items-center justify-center">
                         <img src={item.image} alt={item.name} className="w-8 h-8 object-contain" />
                       </div>
                       <div>
@@ -117,7 +117,7 @@ const TradeEvaluator = () => {
                       </div>
                     </div>
                     <button
-                      className="text-white/70 hover:text-white p-1"
+                      className="text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10"
                       onClick={() => removeItem('your', item.id)}
                     >
                       <Trash2 size={16} />
@@ -130,7 +130,7 @@ const TradeEvaluator = () => {
           
           <Button 
             variant="outline" 
-            className="w-full bg-white/5 hover:bg-white/10 border-white/10"
+            className="w-full bg-white/5 hover:bg-white/10 border-white/10 rounded-xl"
             onClick={() => handleAddItem('your')}
           >
             <Plus size={16} className="mr-2" /> {t('addItem')}
@@ -146,7 +146,7 @@ const TradeEvaluator = () => {
             </div>
           </div>
           
-          <div className="bg-black/20 border border-white/10 rounded-lg min-h-52 p-4">
+          <div className="bg-black/20 border border-white/10 rounded-xl min-h-52 p-4">
             {theirItems.length === 0 ? (
               <div className="h-full flex items-center justify-center text-white/50">
                 No items added
@@ -154,9 +154,9 @@ const TradeEvaluator = () => {
             ) : (
               <div className="grid grid-cols-1 gap-2">
                 {theirItems.map(item => (
-                  <div key={item.id} className="flex items-center justify-between bg-black/30 rounded-md p-2">
+                  <div key={item.id} className="flex items-center justify-between bg-black/30 rounded-xl p-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-black/50 rounded-md overflow-hidden flex items-center justify-center">
+                      <div className="w-10 h-10 bg-black/50 rounded-lg overflow-hidden flex items-center justify-center">
                         <img src={item.image} alt={item.name} className="w-8 h-8 object-contain" />
                       </div>
                       <div>
@@ -165,7 +165,7 @@ const TradeEvaluator = () => {
                       </div>
                     </div>
                     <button
-                      className="text-white/70 hover:text-white p-1"
+                      className="text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10"
                       onClick={() => removeItem('their', item.id)}
                     >
                       <Trash2 size={16} />
@@ -178,7 +178,7 @@ const TradeEvaluator = () => {
           
           <Button 
             variant="outline" 
-            className="w-full bg-white/5 hover:bg-white/10 border-white/10"
+            className="w-full bg-white/5 hover:bg-white/10 border-white/10 rounded-xl"
             onClick={() => handleAddItem('their')}
           >
             <Plus size={16} className="mr-2" /> {t('addItem')}
@@ -189,11 +189,11 @@ const TradeEvaluator = () => {
       {/* Item selection dialog */}
       {addingFor && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#14141f] border border-white/10 rounded-lg max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto">
+          <div className="bg-[#14141f] border border-white/10 rounded-xl max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium">Select an item</h3>
               <button 
-                className="text-white/70 hover:text-white"
+                className="text-white/70 hover:text-white rounded-full p-1 hover:bg-white/10"
                 onClick={() => setAddingFor(null)}
               >
                 <X size={20} />
@@ -204,11 +204,11 @@ const TradeEvaluator = () => {
               {SAMPLE_SKINS.map(skin => (
                 <div 
                   key={skin.id} 
-                  className="flex items-center justify-between bg-black/30 hover:bg-black/50 transition-colors p-3 rounded-md cursor-pointer"
+                  className="flex items-center justify-between bg-black/30 hover:bg-black/50 transition-colors p-3 rounded-xl cursor-pointer"
                   onClick={() => selectItem(skin.id)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-black/50 rounded-md overflow-hidden flex items-center justify-center">
+                    <div className="w-12 h-12 bg-black/50 rounded-lg overflow-hidden flex items-center justify-center">
                       <img src={skin.image} alt={skin.name} className="w-10 h-10 object-contain" />
                     </div>
                     <div>
@@ -227,7 +227,7 @@ const TradeEvaluator = () => {
       {/* Evaluation button */}
       <div className="mt-6">
         <Button 
-          className="neon-button w-full"
+          className="neon-button w-full rounded-xl"
           onClick={evaluateTrade}
           disabled={yourItems.length === 0 || theirItems.length === 0}
         >
@@ -237,7 +237,7 @@ const TradeEvaluator = () => {
       
       {/* Evaluation result */}
       {isEvaluated && evaluationResult && (
-        <div className="mt-4 p-4 rounded-lg border border-neon-blue/30 bg-neon-blue/5 animate-fade-in">
+        <div className="mt-4 p-4 rounded-xl border border-neon-blue/30 bg-neon-blue/5 animate-fade-in">
           <div className="font-medium mb-1">{t('tradeResult')}</div>
           <p>{evaluationResult}</p>
         </div>
