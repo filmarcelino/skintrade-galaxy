@@ -1,5 +1,3 @@
-import { Skin } from './types';
-
 export type LanguageCode = 'en' | 'es' | 'pt-br';
 
 export const LANGUAGES = {
@@ -160,49 +158,65 @@ export const TRANSLATIONS: Translations = {
 };
 
 // Example skin data for the table
-export const SAMPLE_SKINS: Skin[] = [
+export const SAMPLE_SKINS = [
   {
     id: 1,
-    name: "AWP | Dragon Lore",
-    float: "0.0420",
-    wear: "Factory New",
-    purchasePrice: 1200,
+    name: 'AWP | Dragon Lore',
+    image: 'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_awp_dragon_lore_light_large.05c5f86a8304700b4239847b96615b4ef698db42.png',
+    float: 0.0621,
+    wear: 'Factory New',
+    purchasePrice: 1250.50,
     currentPrice: 1560.75,
-    profitLoss: 360.75,
-    trend: "up",
-    image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FAR17P7NdTRH-t26q4SZlvD7PYTQgXtu5Mx2gv3--Y3nj1H6qBJvZmn3cIKQcQQ-ZlzW_wO8xLvr1JS06ZnLnHFjuSQn7XnUyxK2hgYMMLLJ95kbcA"
+    profitLoss: 310.25,
+    trend: 'up',
+    popularity: 'high'
   },
   {
     id: 2,
-    name: "M4A4 | Howl",
-    float: "0.0103",
-    wear: "Factory New",
-    purchasePrice: 900,
-    currentPrice: 1350,
-    profitLoss: 450,
-    trend: "up",
-    image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhjxszFJTwW09-vloWZh-L6OITck29Y_chOhujT8om73wXkrkFoZGyldYSddwI-YguBrFe_kLzq08-i_MOe5SL2eY4"
+    name: 'AK-47 | Asiimov',
+    image: 'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_ak47_cu_ak47_asiimov_light_large.665fc3b83c8046398787a57d2ef7a9d938244820.png',
+    float: 0.2814,
+    wear: 'Field-Tested',
+    purchasePrice: 87.30,
+    currentPrice: 94.50,
+    profitLoss: 7.20,
+    trend: 'up',
+    popularity: 'medium'
   },
   {
     id: 3,
-    name: "Glock-18 | Fade",
-    float: "0.0085",
-    wear: "Factory New",
-    purchasePrice: 500,
-    currentPrice: 405.5,
-    profitLoss: -94.5,
-    trend: "down",
-    image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0Ob3djFN79eJkIGZnLryMrfdqWdY781lteXA54vwxgzj-RA-ZjilJITAJFQ_NwzQ_wW7w7u9gp7vtJucwXMwvCQ8pSGKDlVCsJ4"
+    name: 'Karambit | Fade',
+    image: 'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_knife_karambit_am_fade_light_large.895032ab09350f3aeccaf3a3c0cc3b535d64afa6.png',
+    float: 0.0082,
+    wear: 'Factory New',
+    purchasePrice: 975.00,
+    currentPrice: 1120.00,
+    profitLoss: 145.00,
+    trend: 'up',
+    popularity: 'high'
   },
   {
     id: 4,
-    name: "AK-47 | Fire Serpent",
-    float: "0.1584",
-    wear: "Field-Tested",
-    purchasePrice: 350,
-    currentPrice: 425,
-    profitLoss: 75,
-    trend: "up",
-    image: "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV0924gYKChMj4OrzZglRd6dd2j6fC9t3x3wHjrxI5YGH7cteQclA_Yw3Y_FbqxOzugcO77ZjInHQ16SkhsXrcn0G3n1gSOQVVQs9z"
-  }
+    name: 'Glock-18 | Fade',
+    image: 'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_glock_aa_fade_light_large.61edcc69a1a940551233f9f3ef17eee51746f343.png',
+    float: 0.0325,
+    wear: 'Factory New',
+    purchasePrice: 430.00,
+    currentPrice: 405.50,
+    profitLoss: -24.50,
+    trend: 'down',
+    popularity: 'medium'
+  },
+  {
+    id: 5,
+    name: 'M4A4 | Howl',
+    image: 'https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/weapon_m4a1_cu_m4a1_howl_light_large.c64a9fc6bb61b91af92e83fc61f2cc901f477370.png',
+    float: 0.0512,
+    wear: 'Factory New',
+    purchasePrice: 1890.00,
+    currentPrice: 2340.00,
+    profitLoss: 450.00,
+    trend: 'up',
+    popularity: 'high'
+  },
 ];

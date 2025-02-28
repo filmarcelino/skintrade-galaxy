@@ -12,25 +12,15 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Skin } from '@/lib/types';
-import SkinDetailModal from './SkinDetailModal';
-import AddSkinModal from './AddSkinModal';
-import SellSkinModal from './SellSkinModal';
 
 const SkinTable = () => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
-  const [skins, setSkins] = useState<Skin[]>([...SAMPLE_SKINS]);
-  const [selectedSkin, setSelectedSkin] = useState<Skin | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
-  const [skinToSell, setSkinToSell] = useState<Skin | null>(null);
   
   // Pre-load images
   useEffect(() => {
-    skins.forEach(skin => {
+    SAMPLE_SKINS.forEach(skin => {
       const img = new Image();
       img.onload = () => {
         setLoadedImages(prev => ({
@@ -40,7 +30,7 @@ const SkinTable = () => {
       };
       img.src = skin.image;
     });
-  }, [skins]);
+  }, []);
   
   const handleBuySkin = (skinName: string) => {
     toast({
@@ -50,9 +40,12 @@ const SkinTable = () => {
     });
   };
   
-  const handleSellSkin = (skin: Skin) => {
-    setSkinToSell(skin);
-    setIsSellModalOpen(true);
+  const handleSellSkin = (skinName: string) => {
+    toast({
+      title: 'Sale Initiated',
+      description: `You are about to sell ${skinName}`,
+      variant: 'default',
+    });
   };
   
   const handleAddToTrade = (skinName: string) => {
@@ -72,53 +65,7 @@ const SkinTable = () => {
     // Simulate opening the inspection link
     setTimeout(() => {
       window.open(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(skinName)}`, '_blank');
-    }, 500);
-  };
-
-  const handleSkinClick = (skin: Skin) => {
-    setSelectedSkin(skin);
-    setIsDetailModalOpen(true);
-  };
-
-  const handleAddSkin = (newSkinData: Omit<Skin, 'id' | 'profitLoss' | 'trend'>) => {
-    const newSkin: Skin = {
-      ...newSkinData,
-      id: Date.now(), // Simple ID generation for demo
-      profitLoss: newSkinData.currentPrice - newSkinData.purchasePrice,
-      trend: newSkinData.currentPrice >= newSkinData.purchasePrice ? 'up' : 'down'
-    };
-    
-    setSkins(prev => [...prev, newSkin]);
-  };
-
-  const handleEditSkin = (updatedSkin: Skin) => {
-    // Update profitLoss and trend based on new values
-    const editedSkin = {
-      ...updatedSkin,
-      profitLoss: updatedSkin.currentPrice - updatedSkin.purchasePrice,
-      trend: updatedSkin.currentPrice >= updatedSkin.purchasePrice ? 'up' : 'down'
-    };
-    
-    setSkins(prev => 
-      prev.map(skin => skin.id === editedSkin.id ? editedSkin : skin)
-    );
-    
-    setSelectedSkin(editedSkin);
-  };
-
-  const handleDeleteSkin = (skinId: number) => {
-    setSkins(prev => prev.filter(skin => skin.id !== skinId));
-    
-    toast({
-      title: "Skin Deleted",
-      description: "The skin has been removed from your inventory",
-      variant: "default",
-    });
-  };
-
-  const handleCompleteSale = (skinId: number, salePrice: number) => {
-    // Remove the skin from inventory
-    setSkins(prev => prev.filter(skin => skin.id !== skinId));
+    }, 1000);
   };
 
   return (
@@ -128,20 +75,11 @@ const SkinTable = () => {
           <h2 className="text-xl font-semibold">{t('skinInventory')}</h2>
           <p className="text-white/70 text-sm">Manage your items, track values, and view market trends.</p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            className="bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 rounded-xl"
-            onClick={() => setIsAddModalOpen(true)}
-          >
-            <Plus size={18} className="mr-2" />
-            Add Skin
+        <Link to="/inventory">
+          <Button className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl">
+            See All
           </Button>
-          <Link to="/inventory">
-            <Button className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl">
-              See All
-            </Button>
-          </Link>
-        </div>
+        </Link>
       </div>
       
       <div className="overflow-x-auto">
@@ -159,13 +97,12 @@ const SkinTable = () => {
             </tr>
           </thead>
           <tbody>
-            {skins.map((skin, index) => (
+            {SAMPLE_SKINS.map((skin, index) => (
               <tr 
                 key={skin.id} 
-                className={`transition-colors group cursor-pointer hover:bg-white/5 ${
-                  index === skins.length - 1 ? 'last-row' : ''
+                className={`transition-colors group ${
+                  index === SAMPLE_SKINS.length - 1 ? 'last-row' : ''
                 }`}
-                onClick={() => handleSkinClick(skin)}
               >
                 <td>
                   <div className="flex items-center gap-3">
@@ -183,7 +120,6 @@ const SkinTable = () => {
                             loadedImages[skin.id] ? 'opacity-100' : 'opacity-0'
                           }`} 
                           style={{ filter: 'drop-shadow(0 0 3px rgba(0, 212, 255, 0.5))' }}
-                          loading="lazy"
                         />
                       </div>
                     </div>
@@ -223,30 +159,24 @@ const SkinTable = () => {
                     </div>
                   )}
                 </td>
-                <td className="text-right" onClick={(e) => e.stopPropagation()}>
+                <td className="text-right">
                   <div className="flex items-center justify-end gap-2">
                     <Button 
                       size="sm" 
                       className="bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 h-8 px-2 rounded-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleBuySkin(skin.name);
-                      }}
+                      onClick={() => handleBuySkin(skin.name)}
                     >
                       <Plus size={14} />
                     </Button>
                     <Button 
                       size="sm" 
                       className="bg-neon-red/20 hover:bg-neon-red/40 text-white border border-neon-red/30 h-8 px-2 rounded-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSellSkin(skin);
-                      }}
+                      onClick={() => handleSellSkin(skin.name)}
                     >
                       <ShoppingCart size={14} />
                     </Button>
                     <DropdownMenu>
-                      <DropdownMenuTrigger className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10" onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuTrigger className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
                         <MoreHorizontal size={16} />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent 
@@ -255,31 +185,16 @@ const SkinTable = () => {
                       >
                         <DropdownMenuItem 
                           className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleInspect(skin.name);
-                          }}
+                          onClick={() => handleInspect(skin.name)}
                         >
                           <ExternalLink size={14} />
                           Inspect in-game
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSellSkin(skin);
-                          }}
-                        >
+                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2">
                           <ShoppingCart size={14} />
                           Sell Item
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToTrade(skin.name);
-                          }}
-                        >
+                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2">
                           <Plus size={14} />
                           Add to Trade
                         </DropdownMenuItem>
@@ -292,30 +207,6 @@ const SkinTable = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Skin Detail Modal */}
-      <SkinDetailModal 
-        skin={selectedSkin}
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        onEdit={handleEditSkin}
-        onDelete={handleDeleteSkin}
-      />
-
-      {/* Add Skin Modal */}
-      <AddSkinModal 
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAddSkin={handleAddSkin}
-      />
-
-      {/* Sell Skin Modal */}
-      <SellSkinModal 
-        skin={skinToSell}
-        isOpen={isSellModalOpen}
-        onClose={() => setIsSellModalOpen(false)}
-        onSellSkin={handleCompleteSale}
-      />
     </div>
   );
 };
