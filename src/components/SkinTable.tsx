@@ -1,7 +1,7 @@
 
 import { useI18n } from '@/lib/i18n';
 import { SAMPLE_SKINS } from '@/lib/constants';
-import { ArrowDownIcon, ArrowUpIcon, MoreHorizontal, ShoppingCart, Plus } from 'lucide-react';
+import { ArrowDownIcon, ArrowUpIcon, MoreHorizontal, ShoppingCart, Plus, ExternalLink } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,10 +10,26 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
 
 const SkinTable = () => {
   const { t } = useI18n();
   const { toast } = useToast();
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+  
+  // Pré-carregamento das imagens
+  useEffect(() => {
+    SAMPLE_SKINS.forEach(skin => {
+      const img = new Image();
+      img.onload = () => {
+        setLoadedImages(prev => ({
+          ...prev,
+          [skin.id]: true
+        }));
+      };
+      img.src = skin.image;
+    });
+  }, []);
   
   const handleBuySkin = (skinName: string) => {
     toast({
@@ -38,25 +54,38 @@ const SkinTable = () => {
       variant: 'default',
     });
   };
+  
+  const handleInspect = (skinName: string) => {
+    toast({
+      title: 'Inspect Weapon',
+      description: `Opening inspection for ${skinName}`,
+      variant: 'default',
+    });
+    // Simulação de abertura do link de inspeção
+    setTimeout(() => {
+      window.open(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(skinName)}`, '_blank');
+    }, 1000);
+  };
 
   return (
     <div className="overflow-hidden">
       <div className="p-6 pb-3">
         <h2 className="text-xl font-semibold">{t('skinInventory')}</h2>
+        <p className="text-white/70 text-sm">Gerencie seus itens, acompanhe valores e veja tendências de mercado.</p>
       </div>
       
       <div className="overflow-x-auto">
         <table className="skinculator-table">
           <thead>
             <tr>
-              <th className="rounded-tl-lg">{t('name')}</th>
+              <th className="rounded-tl-xl">{t('name')}</th>
               <th>{t('float')}</th>
               <th>{t('wear')}</th>
               <th>{t('purchasePrice')}</th>
               <th>{t('currentPrice')}</th>
               <th>{t('profitLoss')}</th>
               <th>{t('trend')}</th>
-              <th className="text-right rounded-tr-lg">{t('actions')}</th>
+              <th className="text-right rounded-tr-xl">{t('actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -69,14 +98,27 @@ const SkinTable = () => {
               >
                 <td>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-black/50 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center">
-                      <img 
-                        src={skin.image} 
-                        alt={skin.name} 
-                        className="w-8 h-8 object-contain group-hover:scale-110 transition-transform duration-300" 
-                      />
+                    <div className="w-12 h-12 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-glow-sm hover:shadow-glow-lg transition-all duration-300">
+                      <div className="relative w-10 h-10">
+                        {!loadedImages[skin.id] && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-5 h-5 border-2 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                        <img 
+                          src={skin.image} 
+                          alt={skin.name} 
+                          className={`w-full h-full object-contain group-hover:scale-110 transition-transform duration-300 ${
+                            loadedImages[skin.id] ? 'opacity-100' : 'opacity-0'
+                          }`} 
+                          style={{ filter: 'drop-shadow(0 0 3px rgba(0, 212, 255, 0.5))' }}
+                        />
+                      </div>
                     </div>
-                    <span className="font-medium">{skin.name}</span>
+                    <div>
+                      <div className="font-medium">{skin.name}</div>
+                      <div className="text-xs text-white/60">Acquired 2 days ago</div>
+                    </div>
                   </div>
                 </td>
                 <td>
@@ -140,13 +182,19 @@ const SkinTable = () => {
                         align="end" 
                         className="bg-black/80 backdrop-blur-xl border border-white/10 text-white min-w-32 rounded-xl"
                       >
-                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg">
-                          View Details
+                        <DropdownMenuItem 
+                          className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2"
+                          onClick={() => handleInspect(skin.name)}
+                        >
+                          <ExternalLink size={14} />
+                          Inspect in-game
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg">
+                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2">
+                          <ShoppingCart size={14} />
                           Sell Item
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg">
+                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2">
+                          <Plus size={14} />
                           Add to Trade
                         </DropdownMenuItem>
                       </DropdownMenuContent>
