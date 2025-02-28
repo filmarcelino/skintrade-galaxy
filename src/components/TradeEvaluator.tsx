@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Zap, X } from 'lucide-react';
+import { Plus, Trash2, Zap, X, Loader } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SAMPLE_SKINS } from '@/lib/constants';
 
@@ -21,6 +21,7 @@ const TradeEvaluator = () => {
   const [isEvaluated, setIsEvaluated] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState<string | null>(null);
   const [addingFor, setAddingFor] = useState<'your' | 'their' | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAddItem = (side: 'your' | 'their') => {
     setAddingFor(side);
@@ -58,28 +59,88 @@ const TradeEvaluator = () => {
     return items.reduce((sum, item) => sum + item.value, 0);
   };
 
-  const evaluateTrade = () => {
+  const evaluateTrade = async () => {
+    setIsLoading(true);
     const yourValue = calculateTotalValue(yourItems);
     const theirValue = calculateTotalValue(theirItems);
-    const difference = theirValue - yourValue;
     
-    let result;
-    if (Math.abs(difference) < 10) {
-      result = `This trade is fair with nearly equal value (difference: $${Math.abs(difference).toFixed(2)}).`;
-    } else if (difference > 0) {
-      result = `This trade is in your favor by $${difference.toFixed(2)}. You're receiving more value than you're giving.`;
-    } else {
-      result = `This trade is not in your favor by $${Math.abs(difference).toFixed(2)}. You're giving more value than you're receiving.`;
+    try {
+      // Format the trade data for OpenAI analysis
+      const tradeDescription = {
+        yourItems: yourItems.map(item => ({
+          name: item.name,
+          value: item.value
+        })),
+        theirItems: theirItems.map(item => ({
+          name: item.name,
+          value: item.value
+        })),
+        yourTotal: yourValue,
+        theirTotal: theirValue
+      };
+
+      // Request to OpenAI API
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer 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'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'Você é um especialista em análise de trocas de skins de CS2. Avalie a troca considerando o valor total, raridade, liquidez de mercado e tendências de preço. Forneça uma análise concisa em português.'
+            },
+            {
+              role: 'user',
+              content: `Avalie esta proposta de troca de skins do CS2: ${JSON.stringify(tradeDescription)}`
+            }
+          ],
+          max_tokens: 300
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro na chamada da API');
+      }
+
+      const data = await response.json();
+      const result = data.choices[0].message.content;
+
+      toast({
+        title: 'Troca avaliada pela IA',
+        description: 'A IA analisou sua proposta de troca.',
+        variant: 'default',
+      });
+      
+      setEvaluationResult(result);
+      setIsEvaluated(true);
+    } catch (error) {
+      console.error('Erro ao avaliar troca:', error);
+      toast({
+        title: 'Erro ao avaliar',
+        description: 'Não foi possível completar a análise de IA.',
+        variant: 'destructive',
+      });
+      
+      // Fallback to basic analysis if AI fails
+      const difference = theirValue - yourValue;
+      let fallbackResult;
+      if (Math.abs(difference) < 10) {
+        fallbackResult = `Esta troca é justa com valores quase iguais (diferença: R$${Math.abs(difference).toFixed(2)}).`;
+      } else if (difference > 0) {
+        fallbackResult = `Esta troca é favorável para você em R$${difference.toFixed(2)}. Você está recebendo mais valor do que está dando.`;
+      } else {
+        fallbackResult = `Esta troca não é favorável para você em R$${Math.abs(difference).toFixed(2)}. Você está dando mais valor do que está recebendo.`;
+      }
+      
+      setEvaluationResult(fallbackResult);
+      setIsEvaluated(true);
+    } finally {
+      setIsLoading(false);
     }
-    
-    toast({
-      title: 'Trade evaluated',
-      description: 'The AI has analyzed your trade.',
-      variant: 'default',
-    });
-    
-    setEvaluationResult(result);
-    setIsEvaluated(true);
   };
 
   return (
@@ -94,14 +155,14 @@ const TradeEvaluator = () => {
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-lg">{t('yourItems')}</h3>
             <div className="text-sm text-white/70">
-              Total: ${calculateTotalValue(yourItems).toFixed(2)}
+              Total: R${calculateTotalValue(yourItems).toFixed(2)}
             </div>
           </div>
           
           <div className="bg-black/20 border border-white/10 rounded-xl min-h-52 p-4">
             {yourItems.length === 0 ? (
               <div className="h-full flex items-center justify-center text-white/50">
-                No items added
+                Nenhum item adicionado
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-2">
@@ -113,7 +174,7 @@ const TradeEvaluator = () => {
                       </div>
                       <div>
                         <div className="text-sm font-medium">{item.name}</div>
-                        <div className="text-xs text-white/70">${item.value.toFixed(2)}</div>
+                        <div className="text-xs text-white/70">R${item.value.toFixed(2)}</div>
                       </div>
                     </div>
                     <button
@@ -142,14 +203,14 @@ const TradeEvaluator = () => {
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-lg">{t('theirItems')}</h3>
             <div className="text-sm text-white/70">
-              Total: ${calculateTotalValue(theirItems).toFixed(2)}
+              Total: R${calculateTotalValue(theirItems).toFixed(2)}
             </div>
           </div>
           
           <div className="bg-black/20 border border-white/10 rounded-xl min-h-52 p-4">
             {theirItems.length === 0 ? (
               <div className="h-full flex items-center justify-center text-white/50">
-                No items added
+                Nenhum item adicionado
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-2">
@@ -161,7 +222,7 @@ const TradeEvaluator = () => {
                       </div>
                       <div>
                         <div className="text-sm font-medium">{item.name}</div>
-                        <div className="text-xs text-white/70">${item.value.toFixed(2)}</div>
+                        <div className="text-xs text-white/70">R${item.value.toFixed(2)}</div>
                       </div>
                     </div>
                     <button
@@ -191,7 +252,7 @@ const TradeEvaluator = () => {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-[#14141f] border border-white/10 rounded-xl max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium">Select an item</h3>
+              <h3 className="text-lg font-medium">Selecione um item</h3>
               <button 
                 className="text-white/70 hover:text-white rounded-full p-1 hover:bg-white/10"
                 onClick={() => setAddingFor(null)}
@@ -213,7 +274,7 @@ const TradeEvaluator = () => {
                     </div>
                     <div>
                       <div className="font-medium">{skin.name}</div>
-                      <div className="text-sm text-white/70">${skin.currentPrice.toFixed(2)}</div>
+                      <div className="text-sm text-white/70">R${skin.currentPrice.toFixed(2)}</div>
                     </div>
                   </div>
                   <Plus size={16} className="text-white/50" />
@@ -229,9 +290,17 @@ const TradeEvaluator = () => {
         <Button 
           className="neon-button w-full rounded-xl"
           onClick={evaluateTrade}
-          disabled={yourItems.length === 0 || theirItems.length === 0}
+          disabled={yourItems.length === 0 || theirItems.length === 0 || isLoading}
         >
-          <Zap size={16} className="mr-2" /> {t('evaluateTrade')}
+          {isLoading ? (
+            <>
+              <Loader size={16} className="mr-2 animate-spin" /> Analisando...
+            </>
+          ) : (
+            <>
+              <Zap size={16} className="mr-2" /> {t('evaluateTrade')}
+            </>
+          )}
         </Button>
       </div>
       
@@ -247,3 +316,4 @@ const TradeEvaluator = () => {
 };
 
 export default TradeEvaluator;
+
