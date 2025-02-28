@@ -1,4 +1,138 @@
 
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Trash2, Plus, Zap, Loader, TrendingUp, TrendingDown, AlertCircle, X } from 'lucide-react';
+import { SAMPLE_SKINS } from '@/lib/constants';
+import { useTranslation } from '@/lib/i18n';
+import { supabase } from '@/integrations/supabase/client';
+
+// Define the component as a function
+const TradeEvaluator = () => {
+  const { t } = useTranslation();
+  const [yourItems, setYourItems] = useState([]);
+  const [theirItems, setTheirItems] = useState([]);
+  const [loadedImages, setLoadedImages] = useState({});
+  const [addingFor, setAddingFor] = useState(null);
+  const [isEvaluated, setIsEvaluated] = useState(false);
+  const [evaluationResult, setEvaluationResult] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const calculateTotalValue = (items) => {
+    return items.reduce((sum, item) => sum + item.value, 0);
+  };
+
+  const getPopularityBadge = (popularity) => {
+    if (!popularity) return null;
+
+    let color;
+    switch (popularity) {
+      case 'high':
+        color = 'bg-green-500/20 text-green-500';
+        break;
+      case 'medium':
+        color = 'bg-yellow-500/20 text-yellow-500';
+        break;
+      case 'low':
+        color = 'bg-red-500/20 text-red-500';
+        break;
+      default:
+        color = 'bg-white/20 text-white';
+    }
+
+    return (
+      <div className={`text-[10px] px-1.5 py-0.5 rounded-full ${color}`}>
+        {popularity}
+      </div>
+    );
+  };
+
+  const getTrendIcon = (trend) => {
+    if (!trend) return null;
+
+    if (trend === 'up') {
+      return <TrendingUp size={14} className="text-green-500" />;
+    } else if (trend === 'down') {
+      return <TrendingDown size={14} className="text-red-500" />;
+    }
+    return null;
+  };
+
+  const handleAddItem = (type) => {
+    setAddingFor(type);
+  };
+
+  const removeItem = (type, id) => {
+    if (type === 'your') {
+      setYourItems(yourItems.filter(item => item.id !== id));
+    } else {
+      setTheirItems(theirItems.filter(item => item.id !== id));
+    }
+  };
+
+  const selectItem = (id) => {
+    const selectedSkin = SAMPLE_SKINS.find(skin => skin.id === id);
+    if (!selectedSkin) return;
+
+    const newItem = {
+      id: selectedSkin.id,
+      name: selectedSkin.name,
+      image: selectedSkin.image,
+      value: selectedSkin.currentPrice,
+      marketTrend: selectedSkin.profitLoss > 0 ? 'up' : 'down',
+      popularity: selectedSkin.popularity || 'medium'
+    };
+
+    if (addingFor === 'your') {
+      setYourItems([...yourItems, newItem]);
+    } else {
+      setTheirItems([...theirItems, newItem]);
+    }
+
+    setAddingFor(null);
+  };
+
+  const evaluateTrade = async () => {
+    if (yourItems.length === 0 || theirItems.length === 0) return;
+    
+    setIsLoading(true);
+    
+    try {
+      // Try to use the Supabase function for evaluation
+      const { data, error } = await supabase.functions.invoke('steam-api', {
+        body: {
+          action: 'evaluateTrade',
+          yourItems,
+          theirItems
+        },
+      });
+      
+      if (error) throw error;
+      
+      setEvaluationResult(data.evaluation);
+    } catch (error) {
+      console.error('Error evaluating trade:', error);
+      
+      // Fallback to simple calculation if the function fails
+      const yourTotal = calculateTotalValue(yourItems);
+      const theirTotal = calculateTotalValue(theirItems);
+      const difference = yourTotal - theirTotal;
+      
+      let result;
+      if (Math.abs(difference) < 5) {
+        result = 'Esta troca parece equilibrada em termos de valor.';
+      } else if (difference > 0) {
+        result = `Você está oferecendo R$${Math.abs(difference).toFixed(2)} a mais. Esta troca não é favorável para você.`;
+      } else {
+        result = `Você está recebendo R$${Math.abs(difference).toFixed(2)} a mais. Esta troca é favorável para você.`;
+      }
+      
+      setEvaluationResult(result);
+    } finally {
+      setIsLoading(false);
+      setIsEvaluated(true);
+    }
+  };
+  
   return (
     <div className="glass-card p-6 animate-fade-in rounded-xl">
       <div className="flex items-center gap-2 mb-6">
@@ -230,3 +364,7 @@
       )}
     </div>
   );
+};
+
+// Add an export default statement
+export default TradeEvaluator;
