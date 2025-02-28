@@ -11,13 +11,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const SkinTable = () => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   
-  // Pré-carregamento das imagens
+  // Pre-load images
   useEffect(() => {
     SAMPLE_SKINS.forEach(skin => {
       const img = new Image();
@@ -61,7 +62,7 @@ const SkinTable = () => {
       description: `Opening inspection for ${skinName}`,
       variant: 'default',
     });
-    // Simulação de abertura do link de inspeção
+    // Simulate opening the inspection link
     setTimeout(() => {
       window.open(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(skinName)}`, '_blank');
     }, 1000);
@@ -69,9 +70,16 @@ const SkinTable = () => {
 
   return (
     <div className="overflow-hidden">
-      <div className="p-6 pb-3">
-        <h2 className="text-xl font-semibold">{t('skinInventory')}</h2>
-        <p className="text-white/70 text-sm">Gerencie seus itens, acompanhe valores e veja tendências de mercado.</p>
+      <div className="p-6 pb-3 flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-semibold">{t('skinInventory')}</h2>
+          <p className="text-white/70 text-sm">Manage your items, track values, and view market trends.</p>
+        </div>
+        <Link to="/inventory">
+          <Button className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl">
+            See All
+          </Button>
+        </Link>
       </div>
       
       <div className="overflow-x-auto">
@@ -158,7 +166,7 @@ const SkinTable = () => {
                       className="bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 h-8 px-2 rounded-full"
                       onClick={() => handleBuySkin(skin.name)}
                     >
-                      <ShoppingCart size={14} />
+                      <Plus size={14} />
                     </Button>
                     <Button 
                       size="sm" 
@@ -166,13 +174,6 @@ const SkinTable = () => {
                       onClick={() => handleSellSkin(skin.name)}
                     >
                       <ShoppingCart size={14} />
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 h-8 px-2 rounded-full"
-                      onClick={() => handleAddToTrade(skin.name)}
-                    >
-                      <Plus size={14} />
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
