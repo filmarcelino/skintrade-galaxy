@@ -127,41 +127,47 @@ const Index = () => {
               
               {/* Right Column - Best and Worst Performers */}
               <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Best Performer Card - More proportionally sized */}
-                <div className="glass-card p-6 animate-fade-in rounded-xl">
+                {/* Best Performer Card - Improved */}
+                <div className="glass-card p-6 animate-fade-in rounded-xl border border-neon-green/20 shadow-glow-sm hover:shadow-glow-lg transition-all duration-300">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold flex items-center gap-2">
                       <TrendingUp size={20} className="text-neon-green" />
                       Best Performer
                     </h2>
+                    <span className="bg-neon-green/20 text-neon-green px-3 py-1 rounded-full text-xs font-semibold">
+                      +{((bestPerformer.profitLoss / bestPerformer.purchasePrice) * 100).toFixed(1)}%
+                    </span>
                   </div>
                   
                   {bestPerformer && (
                     <div className="flex flex-col items-center">
-                      <div className="w-24 h-24 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-glow-lg mb-4">
+                      <div className="w-24 h-24 bg-black/50 rounded-xl overflow-hidden border border-neon-green/30 flex items-center justify-center shadow-glow-lg mb-4">
                         <img 
                           src={bestPerformer.image} 
                           alt={bestPerformer.name} 
                           className="w-20 h-20 object-contain" 
-                          style={{ filter: 'drop-shadow(0 0 5px rgba(0, 212, 255, 0.7))' }}
+                          style={{ filter: 'drop-shadow(0 0 5px rgba(80, 255, 120, 0.7))' }}
                         />
                       </div>
                       
                       <div className="text-center mb-3">
-                        <div className="font-medium text-lg">{bestPerformer.name}</div>
-                        <div className="text-xs text-white/60">Factory New | {bestPerformer.float}</div>
+                        <div className="font-medium text-lg text-white">{bestPerformer.name}</div>
+                        <div className="text-xs text-white/60">{bestPerformer.wear} | Float: {bestPerformer.float}</div>
                       </div>
                       
-                      <div className="w-full space-y-2">
-                        <div className="flex justify-between items-center">
+                      <div className="w-full bg-black/30 rounded-lg p-3 border border-neon-green/10">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-white/70">Purchase Price</span>
+                          <span className="font-mono text-white/80">${bestPerformer.purchasePrice.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between items-center mb-2">
                           <span className="text-white/70">Current Price</span>
                           <span className="font-mono text-neon-blue">${bestPerformer.currentPrice.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-white/70">Profit</span>
-                          <span className="font-mono text-neon-green">
-                            +${bestPerformer.profitLoss.toFixed(2)} 
-                            ({((bestPerformer.profitLoss / bestPerformer.purchasePrice) * 100).toFixed(2)}%)
+                          <span className="font-mono text-neon-green font-bold">
+                            +${bestPerformer.profitLoss.toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -169,18 +175,21 @@ const Index = () => {
                   )}
                 </div>
                 
-                {/* Worst Performer Card - New addition */}
-                <div className="glass-card p-6 animate-fade-in rounded-xl">
+                {/* Worst Performer Card - Improved */}
+                <div className="glass-card p-6 animate-fade-in rounded-xl border border-neon-red/20 shadow-glow-sm hover:shadow-glow-lg transition-all duration-300">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold flex items-center gap-2">
                       <TrendingDown size={20} className="text-neon-red" />
                       Worst Performer
                     </h2>
+                    <span className="bg-neon-red/20 text-neon-red px-3 py-1 rounded-full text-xs font-semibold">
+                      {((worstPerformer.profitLoss / worstPerformer.purchasePrice) * 100).toFixed(1)}%
+                    </span>
                   </div>
                   
                   {worstPerformer && (
                     <div className="flex flex-col items-center">
-                      <div className="w-24 h-24 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-glow-lg mb-4">
+                      <div className="w-24 h-24 bg-black/50 rounded-xl overflow-hidden border border-neon-red/30 flex items-center justify-center shadow-glow-lg mb-4">
                         <img 
                           src={worstPerformer.image} 
                           alt={worstPerformer.name} 
@@ -190,20 +199,23 @@ const Index = () => {
                       </div>
                       
                       <div className="text-center mb-3">
-                        <div className="font-medium text-lg">{worstPerformer.name}</div>
-                        <div className="text-xs text-white/60">Factory New | {worstPerformer.float}</div>
+                        <div className="font-medium text-lg text-white">{worstPerformer.name}</div>
+                        <div className="text-xs text-white/60">{worstPerformer.wear} | Float: {worstPerformer.float}</div>
                       </div>
                       
-                      <div className="w-full space-y-2">
-                        <div className="flex justify-between items-center">
+                      <div className="w-full bg-black/30 rounded-lg p-3 border border-neon-red/10">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-white/70">Purchase Price</span>
+                          <span className="font-mono text-white/80">${worstPerformer.purchasePrice.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between items-center mb-2">
                           <span className="text-white/70">Current Price</span>
-                          <span className="font-mono text-white/90">${worstPerformer.currentPrice.toFixed(2)}</span>
+                          <span className="font-mono text-neon-red/80">${worstPerformer.currentPrice.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-white/70">Loss</span>
-                          <span className="font-mono text-neon-red">
-                            ${worstPerformer.profitLoss.toFixed(2)} 
-                            ({((worstPerformer.profitLoss / worstPerformer.purchasePrice) * 100).toFixed(2)}%)
+                          <span className="font-mono text-neon-red font-bold">
+                            ${worstPerformer.profitLoss.toFixed(2)}
                           </span>
                         </div>
                       </div>
