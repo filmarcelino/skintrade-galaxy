@@ -9,7 +9,7 @@ import ComingSoon from '@/components/ComingSoon';
 import Footer from '@/components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Plus, Zap, Package, Rocket, BarChart3, PackageOpen, TrendingUp } from 'lucide-react';
+import { ShoppingCart, Plus, Zap, Package, Rocket, BarChart3, PackageOpen, TrendingUp, TrendingDown } from 'lucide-react';
 import { SAMPLE_SKINS } from '@/lib/constants';
 import { Link } from 'react-router-dom';
 
@@ -20,6 +20,7 @@ const Index = () => {
   const totalValue = SAMPLE_SKINS.reduce((total, skin) => total + skin.currentPrice, 0);
   const totalItems = SAMPLE_SKINS.length;
   const bestPerformer = [...SAMPLE_SKINS].sort((a, b) => b.profitLoss - a.profitLoss)[0];
+  const worstPerformer = [...SAMPLE_SKINS].sort((a, b) => a.profitLoss - b.profitLoss)[0];
   
   useEffect(() => {
     // Add page load animation
@@ -78,89 +79,137 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Three Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* AI Credits Card */}
-              <CreditDisplay />
-              
-              {/* Inventory Summary Card */}
-              <div className="glass-card p-6 animate-fade-in rounded-xl">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <PackageOpen size={20} className="text-neon-blue" />
-                    Inventory Summary
-                  </h2>
-                  <div className="bg-black/40 px-4 py-2 rounded-full font-mono text-neon-blue font-bold">
-                    {totalItems}
-                  </div>
-                </div>
+            {/* Updated Panel Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              {/* Left Column - AI Credits and Inventory Summary */}
+              <div className="md:col-span-4 space-y-6">
+                {/* AI Credits Card - Made narrower */}
+                <CreditDisplay />
                 
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70">Total Value</span>
-                    <span className="font-mono text-neon-blue">${totalValue.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70">Average Item Value</span>
-                    <span className="font-mono text-neon-yellow">
-                      ${(totalValue / totalItems).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/70">Last Added</span>
-                    <span className="font-mono text-white/70">2 days ago</span>
+                {/* Inventory Summary Card - Now below AI Credits */}
+                <div className="glass-card p-6 animate-fade-in rounded-xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                      <PackageOpen size={20} className="text-neon-blue" />
+                      Inventory Summary
+                    </h2>
+                    <div className="bg-black/40 px-4 py-2 rounded-full font-mono text-neon-blue font-bold">
+                      {totalItems}
+                    </div>
                   </div>
                   
-                  <div className="pt-2">
-                    <Link to="/inventory">
-                      <Button className="w-full bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl">
-                        View All
-                      </Button>
-                    </Link>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/70">Total Value</span>
+                      <span className="font-mono text-neon-blue">${totalValue.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/70">Average Item Value</span>
+                      <span className="font-mono text-neon-yellow">
+                        ${(totalValue / totalItems).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/70">Last Added</span>
+                      <span className="font-mono text-white/70">2 days ago</span>
+                    </div>
+                    
+                    <div className="pt-2">
+                      <Link to="/inventory">
+                        <Button className="w-full bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl">
+                          View All
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              {/* Best Performer Card */}
-              <div className="glass-card p-6 animate-fade-in rounded-xl">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <TrendingUp size={20} className="text-neon-green" />
-                    Best Performer
-                  </h2>
+              {/* Right Column - Best and Worst Performers */}
+              <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Best Performer Card - More proportionally sized */}
+                <div className="glass-card p-6 animate-fade-in rounded-xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                      <TrendingUp size={20} className="text-neon-green" />
+                      Best Performer
+                    </h2>
+                  </div>
+                  
+                  {bestPerformer && (
+                    <div className="flex flex-col items-center">
+                      <div className="w-24 h-24 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-glow-lg mb-4">
+                        <img 
+                          src={bestPerformer.image} 
+                          alt={bestPerformer.name} 
+                          className="w-20 h-20 object-contain" 
+                          style={{ filter: 'drop-shadow(0 0 5px rgba(0, 212, 255, 0.7))' }}
+                        />
+                      </div>
+                      
+                      <div className="text-center mb-3">
+                        <div className="font-medium text-lg">{bestPerformer.name}</div>
+                        <div className="text-xs text-white/60">Factory New | {bestPerformer.float}</div>
+                      </div>
+                      
+                      <div className="w-full space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/70">Current Price</span>
+                          <span className="font-mono text-neon-blue">${bestPerformer.currentPrice.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/70">Profit</span>
+                          <span className="font-mono text-neon-green">
+                            +${bestPerformer.profitLoss.toFixed(2)} 
+                            ({((bestPerformer.profitLoss / bestPerformer.purchasePrice) * 100).toFixed(2)}%)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
-                {bestPerformer && (
-                  <div className="flex flex-col items-center">
-                    <div className="w-24 h-24 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-glow-lg mb-4">
-                      <img 
-                        src={bestPerformer.image} 
-                        alt={bestPerformer.name} 
-                        className="w-20 h-20 object-contain" 
-                        style={{ filter: 'drop-shadow(0 0 5px rgba(0, 212, 255, 0.7))' }}
-                      />
-                    </div>
-                    
-                    <div className="text-center mb-3">
-                      <div className="font-medium text-lg">{bestPerformer.name}</div>
-                      <div className="text-xs text-white/60">Factory New | {bestPerformer.float}</div>
-                    </div>
-                    
-                    <div className="w-full space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-white/70">Current Price</span>
-                        <span className="font-mono text-neon-blue">${bestPerformer.currentPrice.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-white/70">Profit</span>
-                        <span className="font-mono text-neon-green">
-                          +${bestPerformer.profitLoss.toFixed(2)} 
-                          ({((bestPerformer.profitLoss / bestPerformer.purchasePrice) * 100).toFixed(2)}%)
-                        </span>
-                      </div>
-                    </div>
+                {/* Worst Performer Card - New addition */}
+                <div className="glass-card p-6 animate-fade-in rounded-xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                      <TrendingDown size={20} className="text-neon-red" />
+                      Worst Performer
+                    </h2>
                   </div>
-                )}
+                  
+                  {worstPerformer && (
+                    <div className="flex flex-col items-center">
+                      <div className="w-24 h-24 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-glow-lg mb-4">
+                        <img 
+                          src={worstPerformer.image} 
+                          alt={worstPerformer.name} 
+                          className="w-20 h-20 object-contain" 
+                          style={{ filter: 'drop-shadow(0 0 5px rgba(255, 61, 61, 0.7))' }}
+                        />
+                      </div>
+                      
+                      <div className="text-center mb-3">
+                        <div className="font-medium text-lg">{worstPerformer.name}</div>
+                        <div className="text-xs text-white/60">Factory New | {worstPerformer.float}</div>
+                      </div>
+                      
+                      <div className="w-full space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/70">Current Price</span>
+                          <span className="font-mono text-white/90">${worstPerformer.currentPrice.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-white/70">Loss</span>
+                          <span className="font-mono text-neon-red">
+                            ${worstPerformer.profitLoss.toFixed(2)} 
+                            ({((worstPerformer.profitLoss / worstPerformer.purchasePrice) * 100).toFixed(2)}%)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
