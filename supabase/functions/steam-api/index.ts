@@ -1,65 +1,71 @@
 
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { createClient } from '@supabase/supabase-js'
 
-// Configuração dos cabeçalhos CORS
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
-// Função principal para servir as requisições
-serve(async (req) => {
-  // Tratar solicitações CORS preflight
+// Handle CORS preflight requests
+const handleCors = (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders })
   }
+}
 
+const getApiKey = () => {
+  const apiKey = Deno.env.get('STEAM_API_KEY')
+  if (!apiKey) {
+    throw new Error('Missing STEAM_API_KEY environment variable')
+  }
+  return apiKey
+}
+
+const handler = async (req: Request): Promise<Response> => {
+  // Handle CORS
+  const corsResponse = handleCors(req)
+  if (corsResponse) return corsResponse
+  
   try {
-    // Obter a chave da API do steamwebapi.com das variáveis de ambiente
-    const steamApiKey = Deno.env.get('STEAM_API_KEY');
-    if (!steamApiKey) {
-      throw new Error('Chave da API do Steam não encontrada');
-    }
-
-    // Obter parâmetros do corpo da requisição
-    const requestData = await req.json();
-    const { market_hash_name, appid } = requestData;
+    const { market_hash_name, appid } = await req.json()
     
-    if (!market_hash_name || !appid) {
-      throw new Error('Parâmetros necessários não especificados');
-    }
-
-    // Para steamwebapi.com, a URL é diferente da API oficial da Steam
-    const steamWebApiUrl = `https://api.steamwebapi.com/market/item-prices/${appid}?key=${steamApiKey}&items=${encodeURIComponent(market_hash_name)}`;
-    
-    console.log(`Fazendo requisição para: ${steamWebApiUrl}`);
-    
-    // Fazer a requisição à API do SteamWebAPI
-    const response = await fetch(steamWebApiUrl);
-    
-    if (!response.ok) {
-      throw new Error(`Erro na API: ${response.statusText}`);
+    if (!market_hash_name) {
+      return new Response(
+        JSON.stringify({ error: 'Missing market_hash_name in request body' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      )
     }
     
-    const data = await response.json();
+    // Get API key from environment variables
+    const apiKey = getApiKey()
     
-    // Retornar os dados com os cabeçalhos CORS
-    return new Response(JSON.stringify(data), {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json',
-      },
-    });
+    // Log request details for debugging
+    console.log(`Making request to steamwebapi.com with:`);
+    console.log(`- market_hash_name: ${market_hash_name}`);
+    console.log(`- appid: ${appid || '730'}`); // Default to CS2 appid
+    
+    // Based on the documentation image, let's use the item endpoint
+    const apiUrl = `https://api.steamwebapi.com/item?key=${apiKey}&market_hash_name=${encodeURIComponent(market_hash_name)}&appid=${appid || '730'}`
+    
+    console.log(`API URL: ${apiUrl}`);
+    
+    const response = await fetch(apiUrl)
+    const data = await response.json()
+    
+    console.log('Response from steamwebapi.com:', data);
+    
+    return new Response(
+      JSON.stringify(data),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
-    console.error('Erro ao acessar a API:', error);
+    console.error('Error in steam-api function:', error)
     
-    // Retornar erro com os cabeçalhos CORS
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json',
-      },
-    });
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    )
   }
-});
+}
+
+Deno.serve(handler)
