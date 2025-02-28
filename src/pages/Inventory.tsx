@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { I18nProvider, useI18n } from '@/lib/i18n';
 import Navbar from '@/components/Navbar';
@@ -73,13 +72,11 @@ const Inventory = () => {
   const [actionType, setActionType] = useState<'add' | 'sell'>('add');
   const [isUsingDemoData, setIsUsingDemoData] = useState(true);
   
-  // Check if user is authenticated
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession();
       setIsUsingDemoData(!data.session);
       
-      // Subscribe to auth changes
       const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
         setIsUsingDemoData(!session);
       });
@@ -92,7 +89,6 @@ const Inventory = () => {
     checkAuth();
   }, []);
   
-  // Fetch skins from Supabase
   const { 
     data: skinsData, 
     isLoading,
@@ -104,7 +100,6 @@ const Inventory = () => {
     enabled: true
   });
   
-  // Add new skin mutation
   const addSkinMutation = useMutation({
     mutationFn: (skinData: Omit<Skin, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => addSkin(skinData),
     onSuccess: () => {
@@ -126,7 +121,6 @@ const Inventory = () => {
     }
   });
   
-  // Update skin mutation
   const updateSkinMutation = useMutation({
     mutationFn: ({ id, data }: { id: number, data: Partial<Skin> }) => updateSkin(id, data),
     onSuccess: () => {
@@ -148,7 +142,6 @@ const Inventory = () => {
     }
   });
   
-  // Delete skin mutation
   const deleteSkinMutation = useMutation({
     mutationFn: (id: number) => deleteSkin(id),
     onSuccess: () => {
@@ -170,7 +163,6 @@ const Inventory = () => {
     }
   });
   
-  // Sell skin mutation
   const sellSkinMutation = useMutation({
     mutationFn: ({ id, price, notes }: { id: number, price: number, notes: string }) => 
       sellSkin(id, price, notes),
@@ -193,7 +185,6 @@ const Inventory = () => {
     }
   });
   
-  // Pre-load images
   useEffect(() => {
     if (!skinsData) return;
     

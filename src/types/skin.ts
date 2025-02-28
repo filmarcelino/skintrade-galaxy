@@ -9,7 +9,7 @@ export interface Skin {
   current_price: number;
   image: string;
   notes?: string;
-  trend?: 'up' | 'down';
+  trend?: 'up' | 'down' | null;
   acquired_at?: string;
   created_at?: string;
   updated_at?: string;

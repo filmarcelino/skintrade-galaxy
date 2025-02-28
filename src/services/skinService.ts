@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Skin, Transaction } from "@/types/skin";
+import { SAMPLE_SKINS } from "@/lib/constants";
 
 export const fetchUserSkins = async (): Promise<Skin[]> => {
   const { data, error } = await supabase
@@ -16,7 +17,9 @@ export const fetchUserSkins = async (): Promise<Skin[]> => {
   // Calculate profit/loss for each skin
   return data.map(skin => ({
     ...skin,
-    profitLoss: skin.current_price - skin.purchase_price
+    profitLoss: skin.current_price - skin.purchase_price,
+    // Ensure trend is either 'up', 'down', or null
+    trend: skin.trend as 'up' | 'down' | null
   }));
 };
 
@@ -42,7 +45,8 @@ export const addSkin = async (skin: Omit<Skin, 'id' | 'user_id' | 'created_at' |
 
   return {
     ...data,
-    profitLoss: data.current_price - data.purchase_price
+    profitLoss: data.current_price - data.purchase_price,
+    trend: data.trend as 'up' | 'down' | null
   };
 };
 
@@ -61,7 +65,8 @@ export const updateSkin = async (id: number, skin: Partial<Skin>): Promise<Skin>
 
   return {
     ...data,
-    profitLoss: data.current_price - data.purchase_price
+    profitLoss: data.current_price - data.purchase_price,
+    trend: data.trend as 'up' | 'down' | null
   };
 };
 
@@ -113,7 +118,11 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
     throw error;
   }
 
-  return data;
+  // Ensure transaction_type is properly typed
+  return data.map(transaction => ({
+    ...transaction,
+    transaction_type: transaction.transaction_type as 'buy' | 'sell' | 'trade'
+  }));
 };
 
 export const addTransaction = async (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at'>): Promise<Transaction> => {
@@ -128,5 +137,8 @@ export const addTransaction = async (transaction: Omit<Transaction, 'id' | 'user
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    transaction_type: data.transaction_type as 'buy' | 'sell' | 'trade'
+  };
 };
