@@ -47,6 +47,7 @@ const TradeEvaluator = () => {
 
   const fetchSteamMarketData = async (appId: string, marketHashName: string) => {
     try {
+      console.log(`Buscando dados para: ${marketHashName} (${appId})`);
       const encodedName = encodeURIComponent(marketHashName);
       
       const { data, error } = await supabase.functions.invoke('steam-api', {
@@ -61,7 +62,7 @@ const TradeEvaluator = () => {
         return null;
       }
 
-      console.log('Dados recebidos da API:', data);
+      console.log('Dados recebidos da API steamwebapi.com:', data);
       return data;
     } catch (error) {
       console.error('Erro ao buscar dados do mercado:', error);
@@ -77,25 +78,38 @@ const TradeEvaluator = () => {
       let marketTrend: 'up' | 'down' | 'stable' = 'stable';
       let popularity: 'high' | 'medium' | 'low' = 'medium';
       
-      // Se temos dados reais, vamos usá-los
-      if (marketData && marketData.items && marketData.items[item.name]) {
-        const itemData = marketData.items[item.name];
+      // Verificar se temos dados válidos da API
+      if (marketData && marketData.success && marketData.data) {
+        // Encontrar o item nos dados da API
+        const steamItem = marketData.data.find(
+          (dataItem: any) => dataItem.market_hash_name.toLowerCase() === item.name.toLowerCase()
+        );
         
-        // Determinar tendência com base nos preços em 24h ou 7d
-        if (itemData.price_change_24h > 0) {
-          marketTrend = 'up';
-        } else if (itemData.price_change_24h < 0) {
-          marketTrend = 'down';
-        }
-        
-        // Determinar popularidade com base no volume
-        if (itemData.volume > 100) {
-          popularity = 'high';
-        } else if (itemData.volume < 20) {
-          popularity = 'low';
+        if (steamItem) {
+          console.log('Item encontrado na API:', steamItem);
+          
+          // Determinar tendência com base na variação de preço
+          if (steamItem.price_change_percentage > 0) {
+            marketTrend = 'up';
+          } else if (steamItem.price_change_percentage < 0) {
+            marketTrend = 'down';
+          }
+          
+          // Determinar popularidade com base no volume
+          if (steamItem.sales_last_24h > 50) {
+            popularity = 'high';
+          } else if (steamItem.sales_last_24h < 10) {
+            popularity = 'low';
+          }
+          
+          // Atualizar o valor do item com o preço real, se disponível
+          if (steamItem.price) {
+            item.value = parseFloat(steamItem.price);
+          }
         }
       } else {
         // Fallback para dados simulados se não conseguimos obter dados reais
+        console.log('Usando dados simulados para o item:', item.name);
         const randomTrend = Math.random();
         const randomPopularity = Math.random();
         

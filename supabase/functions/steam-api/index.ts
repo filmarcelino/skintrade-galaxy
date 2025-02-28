@@ -23,7 +23,7 @@ serve(async (req) => {
 
     // Obter parâmetros do corpo da requisição
     const requestData = await req.json();
-    const { endpoint, market_hash_name, appid } = requestData;
+    const { market_hash_name, appid } = requestData;
     
     if (!market_hash_name || !appid) {
       throw new Error('Parâmetros necessários não especificados');
