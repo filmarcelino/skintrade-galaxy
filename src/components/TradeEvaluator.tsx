@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Zap, X, Loader, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
@@ -24,7 +25,21 @@ const TradeEvaluator = () => {
   const [evaluationResult, setEvaluationResult] = useState<string | null>(null);
   const [addingFor, setAddingFor] = useState<'your' | 'their' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [marketData, setMarketData] = useState<Record<number, any>>({});
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+
+  // Pre-carrega as imagens das skins para evitar problemas de exibição
+  useEffect(() => {
+    SAMPLE_SKINS.forEach(skin => {
+      const img = new Image();
+      img.onload = () => {
+        setLoadedImages(prev => ({
+          ...prev,
+          [skin.id]: true
+        }));
+      };
+      img.src = skin.image;
+    });
+  }, []);
 
   const handleAddItem = (side: 'your' | 'their') => {
     setAddingFor(side);
@@ -271,7 +286,19 @@ const TradeEvaluator = () => {
                   <div key={item.id} className="flex items-center justify-between bg-black/30 hover:bg-black/40 transition-colors rounded-xl p-2">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-black/50 rounded-lg overflow-hidden flex items-center justify-center">
-                        <img src={item.image} alt={item.name} className="w-8 h-8 object-contain" />
+                        <div className="relative w-8 h-8">
+                          {!loadedImages[item.id] && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-4 h-4 border-2 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                          )}
+                          <img 
+                            src={item.image} 
+                            alt={item.name} 
+                            className={`w-full h-full object-contain ${loadedImages[item.id] ? 'opacity-100' : 'opacity-0'}`}
+                            onLoad={() => setLoadedImages(prev => ({ ...prev, [item.id]: true }))}
+                          />
+                        </div>
                       </div>
                       <div>
                         <div className="text-sm font-medium flex items-center gap-1">
@@ -324,7 +351,19 @@ const TradeEvaluator = () => {
                   <div key={item.id} className="flex items-center justify-between bg-black/30 hover:bg-black/40 transition-colors rounded-xl p-2">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-black/50 rounded-lg overflow-hidden flex items-center justify-center">
-                        <img src={item.image} alt={item.name} className="w-8 h-8 object-contain" />
+                        <div className="relative w-8 h-8">
+                          {!loadedImages[item.id] && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-4 h-4 border-2 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                          )}
+                          <img 
+                            src={item.image} 
+                            alt={item.name} 
+                            className={`w-full h-full object-contain ${loadedImages[item.id] ? 'opacity-100' : 'opacity-0'}`} 
+                            onLoad={() => setLoadedImages(prev => ({ ...prev, [item.id]: true }))}
+                          />
+                        </div>
                       </div>
                       <div>
                         <div className="text-sm font-medium flex items-center gap-1">
@@ -381,7 +420,19 @@ const TradeEvaluator = () => {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-black/50 rounded-lg overflow-hidden flex items-center justify-center">
-                      <img src={skin.image} alt={skin.name} className="w-10 h-10 object-contain" />
+                      <div className="relative w-10 h-10">
+                        {!loadedImages[skin.id] && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-4 h-4 border-2 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                        <img 
+                          src={skin.image} 
+                          alt={skin.name} 
+                          className={`w-full h-full object-contain ${loadedImages[skin.id] ? 'opacity-100' : 'opacity-0'}`}
+                          onLoad={() => setLoadedImages(prev => ({ ...prev, [skin.id]: true }))}
+                        />
+                      </div>
                     </div>
                     <div>
                       <div className="font-medium">{skin.name}</div>
