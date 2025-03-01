@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Skin } from '@/types/skin';
 import { fetchUserSkins } from '@/services/skinService';
-import { SAMPLE_SKINS } from '@/lib/constants';
+import { SAMPLE_SKINS } from '@/lib/data/sampleSkins';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 

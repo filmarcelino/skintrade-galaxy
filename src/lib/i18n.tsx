@@ -1,6 +1,7 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { TRANSLATIONS, LanguageCode, DEFAULT_LANGUAGE } from './constants';
+import { LanguageCode, DEFAULT_LANGUAGE } from './i18n/languages';
+import { TRANSLATIONS } from './i18n/translations';
 
 type I18nContextType = {
   language: LanguageCode;
