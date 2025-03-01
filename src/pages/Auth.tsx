@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { LogIn, Mail, Lock, Steam } from 'lucide-react';
+import { LogIn, Mail, Lock, Github } from 'lucide-react';
 
 const Auth = () => {
   const { t } = useI18n();
@@ -79,7 +79,7 @@ const Auth = () => {
               className="w-full mb-6 bg-[#1E5279] hover:bg-[#173F5F] text-white flex items-center gap-2 justify-center"
               onClick={handleSteamLogin}
             >
-              <Steam size={18} />
+              <Github size={18} />
               <span>{t('login')}</span>
             </Button>
             
