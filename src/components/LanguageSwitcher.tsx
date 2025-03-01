@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
-import { LANGUAGES, LanguageCode } from '@/lib/constants';
+import { LANGUAGES, LanguageCode } from '@/lib/languages';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
 import {
@@ -35,13 +35,13 @@ const LanguageSwitcher = () => {
         align="end" 
         className="bg-black/80 backdrop-blur-xl border border-white/10 text-white animate-fade-in"
       >
-        {Object.entries(LANGUAGES).map(([code, name]) => (
+        {LANGUAGES.map((lang) => (
           <DropdownMenuItem
-            key={code}
-            className={`cursor-pointer hover:bg-white/10 ${language === code ? 'bg-white/5 font-medium' : ''}`}
-            onClick={() => handleLanguageChange(code as LanguageCode)}
+            key={lang.code}
+            className={`cursor-pointer hover:bg-white/10 ${language === lang.code ? 'bg-white/5 font-medium' : ''}`}
+            onClick={() => handleLanguageChange(lang.code as LanguageCode)}
           >
-            {name}
+            {lang.name}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
