@@ -38,12 +38,26 @@ type Skin = {
   popularity?: string;
 };
 
+// Define transaction type for recent activity
+type Transaction = {
+  id: number;
+  amount: number;
+  created_at: string;
+  transaction_type: string;
+  notes: string | null;
+  skin_id: number | null;
+  skins?: {
+    name: string;
+    image: string;
+  } | null;
+};
+
 const Inventory = () => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [skins, setSkins] = useState<Skin[]>(SAMPLE_SKINS);
   const [loading, setLoading] = useState(true);
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [recentActivity, setRecentActivity] = useState<Transaction[]>([]);
   
   // Fetch skin data from Supabase
   useEffect(() => {
@@ -57,6 +71,48 @@ const Inventory = () => {
         if (!session) {
           // If not logged in, use sample data (already in the correct format)
           setSkins(SAMPLE_SKINS);
+          
+          // Set sample recent activity data
+          const sampleTransactions = [
+            {
+              id: 1,
+              amount: 1560.75,
+              created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+              transaction_type: 'purchase',
+              notes: 'Added AWP | Dragon Lore',
+              skin_id: 1,
+              skins: {
+                name: 'AWP | Dragon Lore',
+                image: '/path/to/image.png'
+              }
+            },
+            {
+              id: 2,
+              amount: 405.50,
+              created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+              transaction_type: 'sale',
+              notes: 'Sold Glock-18 | Fade',
+              skin_id: 2,
+              skins: {
+                name: 'Glock-18 | Fade',
+                image: '/path/to/image.png'
+              }
+            },
+            {
+              id: 3,
+              amount: 450.00,
+              created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+              transaction_type: 'price_change',
+              notes: 'Price change for M4A4 | Howl',
+              skin_id: 3,
+              skins: {
+                name: 'M4A4 | Howl',
+                image: '/path/to/image.png'
+              }
+            }
+          ];
+          
+          setRecentActivity(sampleTransactions);
           return;
         }
         
@@ -96,11 +152,56 @@ const Inventory = () => {
         
         if (transactionError) throw transactionError;
         
-        setRecentActivity(transactions);
+        console.log('Fetched transactions:', transactions);
+        
+        // Ensure transactions have the correct format
+        setRecentActivity(transactions || []);
       } catch (err) {
         console.error('Error fetching data:', err);
         // Fallback to sample data
         setSkins(SAMPLE_SKINS);
+        
+        // Fallback to sample recent activity data
+        const sampleTransactions = [
+          {
+            id: 1,
+            amount: 1560.75,
+            created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+            transaction_type: 'purchase',
+            notes: 'Added AWP | Dragon Lore',
+            skin_id: 1,
+            skins: {
+              name: 'AWP | Dragon Lore',
+              image: '/path/to/image.png'
+            }
+          },
+          {
+            id: 2,
+            amount: 405.50,
+            created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+            transaction_type: 'sale',
+            notes: 'Sold Glock-18 | Fade',
+            skin_id: 2,
+            skins: {
+              name: 'Glock-18 | Fade',
+              image: '/path/to/image.png'
+            }
+          },
+          {
+            id: 3,
+            amount: 450.00,
+            created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+            transaction_type: 'price_change',
+            notes: 'Price change for M4A4 | Howl',
+            skin_id: 3,
+            skins: {
+              name: 'M4A4 | Howl',
+              image: '/path/to/image.png'
+            }
+          }
+        ];
+        
+        setRecentActivity(sampleTransactions);
       } finally {
         setLoading(false);
       }
@@ -136,6 +237,65 @@ const Inventory = () => {
     if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
     
     return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+  };
+
+  // Get skin name from transaction
+  const getSkinName = (transaction: Transaction): string => {
+    if (transaction.skins && transaction.skins.name) {
+      return transaction.skins.name;
+    }
+    
+    // Extract skin name from notes if available
+    if (transaction.notes) {
+      const match = transaction.notes.match(/(Added|Sold|Changed) (.+)/);
+      if (match && match[2]) {
+        return match[2];
+      }
+    }
+    
+    return 'Unknown Skin';
+  };
+
+  // Get appropriate icon for transaction type
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'purchase':
+        return <Plus size={16} className="text-neon-green" />;
+      case 'sale':
+        return <ShoppingCart size={16} className="text-neon-red" />;
+      case 'price_change':
+        return <BarChart3 size={16} className="text-neon-blue" />;
+      default:
+        return <Clock size={16} className="text-neon-purple" />;
+    }
+  };
+
+  // Get appropriate background color for transaction type
+  const getTransactionBgColor = (type: string) => {
+    switch (type) {
+      case 'purchase':
+        return 'bg-neon-green/20';
+      case 'sale':
+        return 'bg-neon-red/20';
+      case 'price_change':
+        return 'bg-neon-blue/20';
+      default:
+        return 'bg-neon-purple/20';
+    }
+  };
+
+  // Get appropriate text for transaction type
+  const getTransactionText = (transaction: Transaction): string => {
+    switch (transaction.transaction_type) {
+      case 'purchase':
+        return 'Added ';
+      case 'sale':
+        return 'Sold ';
+      case 'price_change':
+        return 'Price change for ';
+      default:
+        return 'Updated ';
+    }
   };
 
   return (
@@ -244,73 +404,29 @@ const Inventory = () => {
                 {loading ? (
                   <div className="text-white/50">Loading recent activity...</div>
                 ) : recentActivity.length > 0 ? (
-                  recentActivity.map((transaction, index) => (
+                  recentActivity.map((transaction) => (
                     <div key={transaction.id} className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <div className={`${transaction.transaction_type === 'purchase' ? 'bg-neon-green/20' : 'bg-neon-red/20'} p-2 rounded-full`}>
-                          {transaction.transaction_type === 'purchase' ? (
-                            <Plus size={16} className="text-neon-green" />
-                          ) : (
-                            <ShoppingCart size={16} className="text-neon-red" />
-                          )}
+                        <div className={`${getTransactionBgColor(transaction.transaction_type)} p-2 rounded-full`}>
+                          {getTransactionIcon(transaction.transaction_type)}
                         </div>
                         <div>
                           <div className="font-medium">
-                            {transaction.transaction_type === 'purchase' ? 'Added ' : 'Sold '}
-                            {transaction.skins ? transaction.skins.name : transaction.notes?.split(' ')[2] || 'Unknown Skin'}
+                            {getTransactionText(transaction)}
+                            {getSkinName(transaction)}
                           </div>
                           <div className="text-xs text-white/60">
                             {formatRelativeTime(transaction.created_at)}
                           </div>
                         </div>
                       </div>
-                      <span className={`font-mono ${transaction.transaction_type === 'purchase' ? 'text-neon-green' : 'text-neon-red'}`}>
-                        {transaction.transaction_type === 'purchase' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                      <span className={`font-mono ${transaction.transaction_type === 'purchase' ? 'text-neon-green' : transaction.transaction_type === 'sale' ? 'text-neon-red' : 'text-neon-blue'}`}>
+                        {transaction.transaction_type === 'purchase' ? '+' : transaction.transaction_type === 'sale' ? '-' : ''}${transaction.amount.toFixed(2)}
                       </span>
                     </div>
                   ))
                 ) : (
-                  // Fallback sample data if no real transactions
-                  <>
-                    <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-neon-green/20 p-2 rounded-full">
-                          <Plus size={16} className="text-neon-green" />
-                        </div>
-                        <div>
-                          <div className="font-medium">Added AWP | Dragon Lore</div>
-                          <div className="text-xs text-white/60">2 days ago</div>
-                        </div>
-                      </div>
-                      <span className="font-mono text-neon-green">+$1,560.75</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-neon-red/20 p-2 rounded-full">
-                          <ShoppingCart size={16} className="text-neon-red" />
-                        </div>
-                        <div>
-                          <div className="font-medium">Sold Glock-18 | Fade</div>
-                          <div className="text-xs text-white/60">5 days ago</div>
-                        </div>
-                      </div>
-                      <span className="font-mono text-neon-red">-$405.50</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-neon-blue/20 p-2 rounded-full">
-                          <BarChart3 size={16} className="text-neon-blue" />
-                        </div>
-                        <div>
-                          <div className="font-medium">Price change for M4A4 | Howl</div>
-                          <div className="text-xs text-white/60">1 week ago</div>
-                        </div>
-                      </div>
-                      <span className="font-mono text-neon-blue">+$450.00</span>
-                    </div>
-                  </>
+                  <div className="text-white/50">No recent activity found</div>
                 )}
               </div>
             </div>
