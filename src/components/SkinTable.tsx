@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { SAMPLE_SKINS } from '@/lib/constants';
 import { 
@@ -27,8 +27,8 @@ const SkinTable = () => {
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Pre-load images
-  useState(() => {
+  // Pre-load images - fixed the useEffect hook
+  useEffect(() => {
     SAMPLE_SKINS.forEach(skin => {
       const img = new Image();
       img.onload = () => {
@@ -39,7 +39,7 @@ const SkinTable = () => {
       };
       img.src = skin.image;
     });
-  });
+  }, []); // Added empty dependency array
   
   const filteredSkins = SAMPLE_SKINS.filter(skin => 
     skin.name.toLowerCase().includes(searchQuery.toLowerCase())
