@@ -28,14 +28,14 @@ import {
 } from 'lucide-react';
 
 const Settings = () => {
-  const { t, i18n, changeLanguage } = useI18n();
+  const { t, language, setLanguage } = useI18n();
   const { toast: uiToast } = useToast();
   
   const [form, setForm] = useState({
     displayName: 'User',
     email: 'user@example.com',
     currency: 'USD',
-    language: 'en',
+    language: language,
     theme: 'dark',
     notifications: {
       priceAlerts: true,
@@ -59,19 +59,20 @@ const Settings = () => {
   
   // Handle nested form changes
   const handleNestedChange = (parentField: string, field: string, value: any) => {
-    setForm(prev => ({
-      ...prev,
-      [parentField]: {
+    setForm(prev => {
+      const updatedForm = { ...prev };
+      updatedForm[parentField as keyof typeof prev] = {
         ...prev[parentField as keyof typeof prev],
         [field]: value
-      }
-    }));
+      };
+      return updatedForm;
+    });
   };
   
   // Handle language change
   const handleLanguageChange = (value: string) => {
     handleChange('language', value);
-    changeLanguage(value);
+    setLanguage(value as LanguageCode);
   };
   
   // Handle form submission
@@ -82,7 +83,7 @@ const Settings = () => {
     // Show success notification
     toast.success(t('settingsSaved', 'Settings saved successfully'));
     uiToast({
-      title: t('success'),
+      title: t('success', 'Success'),
       description: t('settingsSaved', 'Settings saved successfully'),
       variant: 'default'
     });
@@ -107,7 +108,7 @@ const Settings = () => {
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="pt-4 pb-8">
             <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
-              {t('settings')}
+              {t('settings', 'Settings')}
             </h1>
             <p className="text-white/60 max-w-2xl">
               {t('settingsDescription', 'Customize your experience and manage your account settings.')}

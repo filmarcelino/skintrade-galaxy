@@ -5,7 +5,7 @@ import { TRANSLATIONS, LanguageCode, DEFAULT_LANGUAGE } from './constants';
 type I18nContextType = {
   language: LanguageCode;
   setLanguage: (lang: LanguageCode) => void;
-  t: (key: string) => string;
+  t: (key: string, fallback?: string) => string;
 };
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -21,9 +21,9 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     setLanguageState(lang);
   };
 
-  const t = (key: string): string => {
+  const t = (key: string, fallback?: string): string => {
     const translations = TRANSLATIONS[language];
-    return translations[key] || key;
+    return translations[key] || fallback || key;
   };
 
   useEffect(() => {

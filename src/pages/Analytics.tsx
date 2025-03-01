@@ -154,7 +154,7 @@ const Analytics = () => {
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="pt-4 pb-8">
             <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
-              {t('analytics')}
+              {t('analytics', 'Analytics')}
             </h1>
             <p className="text-white/60 max-w-2xl">
               {t('analyticsDescription', 'Analyze your skin collection performance and market trends over time.')}
@@ -338,7 +338,7 @@ const Analytics = () => {
           <div className="glass-card p-6 rounded-xl">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Calendar size={20} className="text-blue-400" />
-              {t('recentTransactions')}
+              {t('recentTransactions', 'Recent Transactions')}
             </h2>
             
             <div className="space-y-4">
