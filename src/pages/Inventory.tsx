@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { I18nProvider, useI18n } from '@/lib/i18n';
 import Navbar from '@/components/Navbar';
@@ -61,7 +60,6 @@ const Inventory = () => {
   });
   const [actionType, setActionType] = useState<'add' | 'sell'>('add');
   
-  // Pre-load images
   useState(() => {
     SAMPLE_SKINS.forEach(skin => {
       const img = new Image();
@@ -192,7 +190,6 @@ const Inventory = () => {
               </div>
             </div>
             
-            {/* Portfolio Summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="glass-card p-6 rounded-xl">
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -256,7 +253,6 @@ const Inventory = () => {
               </div>
             </div>
             
-            {/* Recent Activity */}
             <div className="glass-card p-6 rounded-xl">
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <Clock size={20} className="text-neon-purple" />
@@ -304,7 +300,6 @@ const Inventory = () => {
               </div>
             </div>
             
-            {/* Inventory Table */}
             <div className="glass-card rounded-xl overflow-hidden">
               <div className="p-6 pb-3 flex items-center justify-between">
                 <div>
@@ -465,7 +460,6 @@ const Inventory = () => {
           </div>
         </main>
         
-        {/* Skin Detail Modal */}
         {selectedSkin && (
           <Dialog open={Boolean(selectedSkin)} onOpenChange={(open) => !open && setSelectedSkin(null)}>
             <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl max-w-3xl">
@@ -515,6 +509,20 @@ const Inventory = () => {
                       <Trash2 size={16} className="mr-2" />
                       Delete Skin
                     </Button>
+                    <Button 
+                      className="w-full bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl"
+                      onClick={() => {
+                        handleAddToTrade(selectedSkin.name);
+                        toast({
+                          title: "Added to Trade",
+                          description: `${selectedSkin.name} has been added to the trade`,
+                          variant: "default",
+                        });
+                      }}
+                    >
+                      <Plus size={16} className="mr-2" />
+                      Add to Trade
+                    </Button>
                   </div>
                 </div>
                 
@@ -551,7 +559,6 @@ const Inventory = () => {
                   <div className="bg-white/5 p-4 rounded-xl">
                     <div className="text-white/60 text-sm mb-2">Price History (30 days)</div>
                     <div className="h-24 flex items-end space-x-1">
-                      {/* Simple bar chart visualization */}
                       {Array.from({ length: 30 }).map((_, i) => {
                         const height = 30 + Math.random() * 70;
                         const isCurrent = i === 29;
@@ -583,7 +590,6 @@ const Inventory = () => {
           </Dialog>
         )}
         
-        {/* Edit Skin Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl">
             <DialogHeader>
@@ -595,6 +601,17 @@ const Inventory = () => {
             
             {editSkinData && (
               <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="text-sm text-white/70 block mb-2">Skin Name</label>
+                    <Input 
+                      value={editSkinData.name}
+                      onChange={(e) => setEditSkinData({...editSkinData, name: e.target.value})}
+                      className="bg-black/20 border-white/10"
+                    />
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm text-white/70 block mb-2">Float Value</label>
@@ -634,6 +651,15 @@ const Inventory = () => {
                     />
                   </div>
                 </div>
+
+                <div>
+                  <label className="text-sm text-white/70 block mb-2">Image URL</label>
+                  <Input 
+                    value={editSkinData.image}
+                    onChange={(e) => setEditSkinData({...editSkinData, image: e.target.value})}
+                    className="bg-black/20 border-white/10"
+                  />
+                </div>
                 
                 <div>
                   <label className="text-sm text-white/70 block mb-2">Acquisition Date</label>
@@ -671,7 +697,6 @@ const Inventory = () => {
           </DialogContent>
         </Dialog>
         
-        {/* Add/Sell Skin Dialog */}
         <Dialog open={isAddSellDialogOpen} onOpenChange={setIsAddSellDialogOpen}>
           <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl">
             <DialogHeader>
