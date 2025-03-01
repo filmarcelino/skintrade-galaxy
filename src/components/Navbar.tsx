@@ -1,148 +1,145 @@
 
-import { useNavigate, Link } from "react-router-dom";
-import { Bell, Menu, UserCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
-import { useI18n } from "@/lib/i18n";
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useI18n } from '@/lib/i18n';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import CreditDisplay from '@/components/CreditDisplay';
+import { Button } from '@/components/ui/button';
+import { 
+  Menu, 
+  X, 
+  Home, 
+  ShoppingCart, 
+  PackageOpen, 
+  BarChart3, 
+  Settings,
+  LogIn
+} from 'lucide-react';
 
 const Navbar = () => {
   const { t } = useI18n();
-  const navigate = useNavigate();
-  const { signOut, user } = useAuth();
+  const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleSignOut = async () => {
-    await signOut();
-    toast.success("Logged out successfully");
-  };
+  const isActive = (path: string) => location.pathname === path;
+
+  const NavLink = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => (
+    <Link 
+      to={to} 
+      className={`flex items-center gap-2 py-2 px-3 rounded-lg transition-colors ${
+        isActive(to) 
+          ? 'bg-white/10 text-white font-medium' 
+          : 'text-white/70 hover:bg-white/5 hover:text-white'
+      }`}
+    >
+      <Icon size={18} />
+      <span>{label}</span>
+    </Link>
+  );
 
   return (
-    <header className="sticky top-0 z-50 w-full backdrop-blur-lg bg-black/30 border-b border-white/10">
-      <div className="px-4 md:px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="icon" variant="ghost" className="md:hidden">
-                <Menu className="w-5 h-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="left"
-              className="w-72 bg-black/95 border-r border-white/10 p-0"
+    <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-black/40 border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="relative w-8 h-8 flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-70"></div>
+              <span className="relative text-white font-bold text-lg">S</span>
+            </div>
+            <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+              Skinculator
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
+            <NavLink to="/" icon={Home} label={t('dashboard')} />
+            <NavLink to="/inventory" icon={PackageOpen} label={t('inventory')} />
+            <NavLink to="/marketplace" icon={ShoppingCart} label={t('marketplace')} />
+            <NavLink to="/analytics" icon={BarChart3} label={t('analytics')} />
+            <NavLink to="/settings" icon={Settings} label={t('settings')} />
+          </nav>
+
+          {/* Right Side Items */}
+          <div className="flex items-center gap-3">
+            <CreditDisplay />
+            <LanguageSwitcher />
+            
+            <Button 
+              variant="default" 
+              size="sm"
+              className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
             >
-              <div className="flex flex-col h-full">
-                <div className="border-b border-white/10 px-6 py-4">
-                  <h2 className="text-lg font-bold text-white">
-                    CS:GO Skin Tracker
-                  </h2>
-                </div>
-
-                <nav className="flex-1 overflow-auto py-4">
-                  <ul className="grid gap-1 px-2">
-                    <li>
-                      <Link
-                        to="/"
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-white transition-colors hover:bg-white/10"
-                        onClick={() => navigate("/")}
-                      >
-                        Dashboard
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="/inventory"
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-white transition-colors hover:bg-white/10"
-                        onClick={() => navigate("/inventory")}
-                      >
-                        Inventory
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="/marketplace"
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-white transition-colors hover:bg-white/10"
-                        onClick={() => navigate("/marketplace")}
-                      >
-                        Marketplace
-                      </Link>
-                    </li>
-                  </ul>
-                </nav>
-                {user && (
-                  <div className="border-t border-white/10 p-4">
-                    <Button
-                      variant="destructive"
-                      className="w-full"
-                      onClick={handleSignOut}
-                    >
-                      Sign Out
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
-          <Link to="/" className="text-xl font-bold text-white hidden md:block">
-            CS:GO Skin Tracker
-          </Link>
-        </div>
-
-        <nav className="hidden md:flex items-center gap-5">
-          <Link
-            to="/"
-            className="text-sm font-medium text-white/70 transition-colors hover:text-white"
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/inventory"
-            className="text-sm font-medium text-white/70 transition-colors hover:text-white"
-          >
-            Inventory
-          </Link>
-          <Link
-            to="/marketplace"
-            className="text-sm font-medium text-white/70 transition-colors hover:text-white"
-          >
-            Marketplace
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="text-white/70 hover:text-white"
-          >
-            <Bell className="h-5 w-5" />
-          </Button>
-          <div className="flex items-center">
-            {user ? (
-              <div className="flex items-center gap-2">
-                <UserCircle className="h-8 w-8 text-white/80" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSignOut}
-                  className="text-sm text-white/70 hover:text-white"
-                >
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/auth")}
-                className="text-sm text-white/70 hover:text-white"
-              >
-                Sign In
-              </Button>
-            )}
+              <LogIn size={16} />
+              <span>{t('login')}</span>
+            </Button>
+            
+            {/* Mobile Menu Button */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-black/95 backdrop-blur-lg border-b border-white/10 animate-fade-in">
+          <div className="px-4 py-3 space-y-1">
+            <Link 
+              to="/" 
+              className={`block py-2 px-3 rounded-lg ${isActive('/') ? 'bg-white/10 text-white' : 'text-white/70'}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t('dashboard')}
+            </Link>
+            <Link 
+              to="/inventory" 
+              className={`block py-2 px-3 rounded-lg ${isActive('/inventory') ? 'bg-white/10 text-white' : 'text-white/70'}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t('inventory')}
+            </Link>
+            <Link 
+              to="/marketplace" 
+              className={`block py-2 px-3 rounded-lg ${isActive('/marketplace') ? 'bg-white/10 text-white' : 'text-white/70'}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t('marketplace')}
+            </Link>
+            <Link 
+              to="/analytics" 
+              className={`block py-2 px-3 rounded-lg ${isActive('/analytics') ? 'bg-white/10 text-white' : 'text-white/70'}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t('analytics')}
+            </Link>
+            <Link 
+              to="/settings" 
+              className={`block py-2 px-3 rounded-lg ${isActive('/settings') ? 'bg-white/10 text-white' : 'text-white/70'}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t('settings')}
+            </Link>
+            
+            <Button 
+              variant="default" 
+              size="sm"
+              className="mt-3 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <LogIn size={16} />
+              <span>{t('login')}</span>
+            </Button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

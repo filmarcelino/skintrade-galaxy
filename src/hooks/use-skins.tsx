@@ -1,152 +1,249 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
-export type SkinCondition = 'Factory New' | 'Minimal Wear' | 'Field-Tested' | 'Well-Worn' | 'Battle-Scarred';
-
-export type Skin = {
+export interface Skin {
   id: number;
   name: string;
-  image: string;
+  float: string;
+  wear: string;
   purchase_price: number;
   current_price: number;
-  wear: string;
-  float: string;
+  image: string;
+  trend?: 'up' | 'down';
+  user_id?: string;
+  created_at?: string;
+  updated_at?: string;
   notes?: string;
   acquired_at?: string;
-  trend?: string;
-  user_id?: string;
-};
+}
 
-export const useSkins = () => {
-  const [skins, setSkins] = useState<Skin[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+export interface NewSkin {
+  name: string;
+  float: string;
+  wear: string;
+  purchase_price: number;
+  current_price: number;
+  image: string;
+  notes?: string;
+  trend?: 'up' | 'down';
+}
 
-  const fetchSkins = async () => {
+export interface Transaction {
+  skin_id: number;
+  amount: number;
+  transaction_type: 'purchase' | 'sale';
+  notes?: string;
+}
+
+export function useSkins() {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Adicionar uma nova skin
+  const addSkin = async (newSkin: NewSkin) => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       
-      if (!user) {
-        setSkins([]);
-        return;
+      // Verificar se há sessão ativa
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Erro',
+          description: 'Você precisa estar logado para adicionar skins.',
+        });
+        return null;
       }
-      
+
+      // Realizar a inserção no banco de dados
       const { data, error } = await supabase
+        .from('skins')
+        .insert({
+          name: newSkin.name,
+          float: newSkin.float,
+          wear: newSkin.wear,
+          purchase_price: newSkin.purchase_price,
+          current_price: newSkin.current_price,
+          image: newSkin.image,
+          trend: newSkin.trend || 'up',
+          notes: newSkin.notes,
+          user_id: session.user.id,
+        })
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      // Registrar a transação de compra
+      await supabase
+        .from('transactions')
+        .insert({
+          skin_id: data[0].id,
+          amount: newSkin.purchase_price,
+          transaction_type: 'purchase',
+          notes: `Aquisição inicial: ${newSkin.name}`,
+          user_id: session.user.id,
+        });
+
+      toast({
+        title: 'Skin Adicionada',
+        description: `${newSkin.name} foi adicionada ao seu inventário.`,
+      });
+
+      return data[0] as Skin;
+    } catch (error) {
+      console.error('Erro ao adicionar skin:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível adicionar a skin.',
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Vender uma skin
+  const sellSkin = async (skinId: number, salePrice: number, notes?: string) => {
+    try {
+      setIsLoading(true);
+      
+      // Verificar se há sessão ativa
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Erro',
+          description: 'Você precisa estar logado para vender skins.',
+        });
+        return false;
+      }
+
+      // Obter informações da skin
+      const { data: skinData, error: skinError } = await supabase
         .from('skins')
         .select('*')
-        .eq('user_id', user.id)
-        .order('id', { ascending: false });
-      
-      if (error) {
-        throw error;
-      }
-      
-      setSkins(data || []);
-    } catch (err: any) {
-      console.error('Error fetching skins:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addSkin = async (newSkin: Omit<Skin, 'id'>) => {
-    try {
-      if (!user) {
-        throw new Error('Must be logged in to add skins');
-      }
-      
-      const skinWithUserId = {
-        ...newSkin,
-        user_id: user.id
-      };
-      
-      const { data, error } = await supabase
-        .from('skins')
-        .insert([skinWithUserId])
-        .select()
+        .eq('id', skinId)
         .single();
-      
-      if (error) {
-        throw error;
-      }
-      
-      setSkins(prev => [data, ...prev]);
-      return data;
-    } catch (err: any) {
-      console.error('Error adding skin:', err);
-      throw err;
-    }
-  };
 
-  const updateSkin = async (id: number, updates: Partial<Skin>) => {
-    try {
-      if (!user) {
-        throw new Error('Must be logged in to update skins');
+      if (skinError) {
+        throw skinError;
       }
-      
-      const { data, error } = await supabase
-        .from('skins')
-        .update(updates)
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .select()
-        .single();
-      
-      if (error) {
-        throw error;
-      }
-      
-      setSkins(prev => prev.map(skin => skin.id === id ? data : skin));
-      return data;
-    } catch (err: any) {
-      console.error('Error updating skin:', err);
-      throw err;
-    }
-  };
 
-  const deleteSkin = async (id: number) => {
-    try {
-      if (!user) {
-        throw new Error('Must be logged in to delete skins');
+      // Registrar a transação de venda
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          skin_id: skinId,
+          amount: salePrice,
+          transaction_type: 'sale',
+          notes: notes || `Venda: ${skinData.name}`,
+          user_id: session.user.id,
+        });
+
+      if (transactionError) {
+        throw transactionError;
       }
-      
-      const { error } = await supabase
+
+      // Excluir a skin do inventário
+      const { error: deleteError } = await supabase
         .from('skins')
         .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('id', skinId);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      toast({
+        title: 'Skin Vendida',
+        description: `${skinData.name} foi vendida por $${salePrice.toFixed(2)}.`,
+      });
+
+      // Calcular lucro/prejuízo
+      const profitLoss = salePrice - skinData.purchase_price;
+      const profitPercentage = (profitLoss / skinData.purchase_price) * 100;
+
+      toast({
+        title: profitLoss >= 0 ? 'Lucro!' : 'Prejuízo',
+        description: `${profitLoss >= 0 ? 'Ganhou' : 'Perdeu'} $${Math.abs(profitLoss).toFixed(2)} (${profitPercentage.toFixed(2)}%)`,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao vender skin:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível vender a skin.',
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Atualizar uma skin existente
+  const updateSkin = async (id: number, updatedData: Partial<Skin>) => {
+    try {
+      setIsLoading(true);
       
+      // Verificar se há sessão ativa
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Erro',
+          description: 'Você precisa estar logado para atualizar skins.',
+        });
+        return null;
+      }
+
+      // Atualizar dados no Supabase
+      const { data, error } = await supabase
+        .from('skins')
+        .update({
+          name: updatedData.name,
+          float: updatedData.float,
+          wear: updatedData.wear,
+          purchase_price: updatedData.purchase_price,
+          current_price: updatedData.current_price,
+          image: updatedData.image,
+          trend: updatedData.trend,
+          notes: updatedData.notes,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select();
+
       if (error) {
         throw error;
       }
-      
-      setSkins(prev => prev.filter(skin => skin.id !== id));
-    } catch (err: any) {
-      console.error('Error deleting skin:', err);
-      throw err;
+
+      toast({
+        title: 'Skin Atualizada',
+        description: `${updatedData.name || 'Skin'} foi atualizada com sucesso.`,
+      });
+
+      return data[0] as Skin;
+    } catch (error) {
+      console.error('Erro ao atualizar skin:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atualizar a skin.',
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      fetchSkins();
-    } else {
-      setSkins([]);
-      setLoading(false);
-    }
-  }, [user]);
 
   return {
-    skins,
-    loading,
-    error,
-    fetchSkins,
     addSkin,
+    sellSkin,
     updateSkin,
-    deleteSkin
+    isLoading
   };
-};
+}
