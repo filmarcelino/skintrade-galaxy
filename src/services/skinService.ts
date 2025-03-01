@@ -4,6 +4,12 @@ import { Skin, Transaction } from "@/types/skin";
 import { SAMPLE_SKINS } from "@/lib/constants";
 
 export const fetchUserSkins = async (): Promise<Skin[]> => {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+  
   const { data, error } = await supabase
     .from('skins')
     .select('*')
@@ -28,6 +34,12 @@ export const fetchUserSkins = async (): Promise<Skin[]> => {
 };
 
 export const addSkin = async (skin: Omit<Skin, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Skin> => {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+  
   const { data, error } = await supabase
     .from('skins')
     .insert([skin])
@@ -58,6 +70,12 @@ export const addSkin = async (skin: Omit<Skin, 'id' | 'user_id' | 'created_at' |
 };
 
 export const updateSkin = async (id: number, skin: Partial<Skin>): Promise<Skin> => {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+  
   const { data, error } = await supabase
     .from('skins')
     .update(skin)
@@ -81,6 +99,12 @@ export const updateSkin = async (id: number, skin: Partial<Skin>): Promise<Skin>
 };
 
 export const deleteSkin = async (id: number): Promise<void> => {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+  
   const { error } = await supabase
     .from('skins')
     .delete()
@@ -93,6 +117,12 @@ export const deleteSkin = async (id: number): Promise<void> => {
 };
 
 export const sellSkin = async (id: number, salePrice: number, notes?: string): Promise<void> => {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+  
   // Get the skin first
   const { data: skin, error: skinError } = await supabase
     .from('skins')
@@ -118,6 +148,12 @@ export const sellSkin = async (id: number, salePrice: number, notes?: string): P
 };
 
 export const fetchTransactions = async (): Promise<Transaction[]> => {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+  
   const { data, error } = await supabase
     .from('transactions')
     .select('*')
@@ -136,6 +172,12 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
 };
 
 export const addTransaction = async (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at'>): Promise<Transaction> => {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session.session) {
+    throw new Error('Not authenticated');
+  }
+  
   const { data, error } = await supabase
     .from('transactions')
     .insert([transaction])
