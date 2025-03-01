@@ -59,15 +59,16 @@ const SkinTable = () => {
         
         if (!session) {
           // Se não houver sessão, usar dados de amostra
+          // Convertendo o float para string para corresponder à interface Skin
           setSkins(SAMPLE_SKINS.map(skin => ({
             id: skin.id,
             name: skin.name,
-            float: skin.float,
+            float: String(skin.float), // Convertendo para string
             wear: skin.wear,
             purchase_price: skin.purchasePrice,
             current_price: skin.currentPrice,
             image: skin.image,
-            trend: skin.trend
+            trend: skin.trend as 'up' | 'down' // Garantindo o tipo correto
           })));
           return;
         }
@@ -89,7 +90,7 @@ const SkinTable = () => {
           purchase_price: skin.purchase_price,
           current_price: skin.current_price,
           image: skin.image,
-          trend: skin.trend || 'up',
+          trend: (skin.trend as 'up' | 'down') || 'up', // Garantindo o tipo correto
           user_id: skin.user_id,
           created_at: skin.created_at,
           updated_at: skin.updated_at,
@@ -109,12 +110,12 @@ const SkinTable = () => {
         setSkins(SAMPLE_SKINS.map(skin => ({
           id: skin.id,
           name: skin.name,
-          float: skin.float,
+          float: String(skin.float), // Convertendo para string
           wear: skin.wear,
           purchase_price: skin.purchasePrice,
           current_price: skin.currentPrice,
           image: skin.image,
-          trend: skin.trend
+          trend: skin.trend as 'up' | 'down' // Garantindo o tipo correto
         })));
       } finally {
         setLoading(false);
