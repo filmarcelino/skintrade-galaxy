@@ -51,7 +51,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       
-      navigate('/');
+      // Redirect to dashboard after successful login
+      navigate('/dashboard');
+      toast.success("Successfully signed in!");
     } catch (error) {
       console.error('Login error:', error);
       toast.error("An unexpected error occurred during login.");

@@ -1,6 +1,4 @@
-
 import { useNavigate, Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { Bell, Menu, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -8,7 +6,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
 
