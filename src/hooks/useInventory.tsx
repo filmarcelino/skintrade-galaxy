@@ -23,6 +23,10 @@ export const useInventory = () => {
     current_price: 0,
     image: '',
     notes: '',
+    pattern: '',
+    stickers: '',
+    rarity: '',
+    collection: '',
   });
   const [saleData, setSaleData] = useState({
     salePrice: 0,
@@ -231,7 +235,11 @@ export const useInventory = () => {
         wear: editSkinData.wear,
         purchase_price: editSkinData.purchase_price,
         current_price: editSkinData.current_price,
-        notes: editSkinData.notes
+        notes: editSkinData.notes,
+        pattern: editSkinData.pattern,
+        stickers: editSkinData.stickers,
+        rarity: editSkinData.rarity,
+        collection: editSkinData.collection
       } 
     });
   };
@@ -246,7 +254,11 @@ export const useInventory = () => {
         purchase_price: 0,
         current_price: 0,
         image: '',
-        notes: ''
+        notes: '',
+        pattern: '',
+        stickers: '',
+        rarity: '',
+        collection: ''
       });
     } else if (type === 'sell' && skin) {
       setSaleData({
@@ -277,6 +289,10 @@ export const useInventory = () => {
       current_price: newSkinData.current_price,
       image: newSkinData.image || 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxszJemkV09-5lpKKqPrxN7LEmyVQ7MEpiLuSrYmnjQO3-UdsZGHyd4_Bd1RvNQ7T_FDrw-_ng5Pu75iY1zI97bhLsvQz/130fx97f/image.png',
       notes: newSkinData.notes,
+      pattern: newSkinData.pattern,
+      stickers: newSkinData.stickers,
+      rarity: newSkinData.rarity,
+      collection: newSkinData.collection,
       trend: 'up' // Ensure trend is explicitly set to an allowed value
     });
   };
