@@ -484,7 +484,7 @@ const SkinTable = () => {
                 return (
                   <tr 
                     key={skin.id} 
-                    className={`transition-colors hover:bg-white/5 ${
+                    className={`transition-colors hover:bg-white/5 cursor-pointer ${
                       index === filteredSkins.length - 1 ? 'last-row' : ''
                     }`}
                     onClick={() => handleOpenSkinDetails(skin)}
