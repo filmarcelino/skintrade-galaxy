@@ -1,38 +1,39 @@
 
-import { useState } from "react";
-import { useI18n } from "@/lib/i18n";
 import { Skin } from "@/types/skin";
+import { DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface SkinFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  actionType: 'add' | 'edit' | 'sell';
+  actionType: 'add' | 'sell' | 'edit';
   selectedSkin: Skin | null;
-  newSkinData: any;
+  newSkinData: {
+    name: string;
+    float: string;
+    wear: string;
+    purchase_price: number;
+    current_price: number;
+    image: string;
+    notes: string;
+  };
   setNewSkinData: (data: any) => void;
   editSkinData: Skin | null;
   setEditSkinData: (data: Skin | null) => void;
-  saleData: any;
+  saleData: {
+    salePrice: number;
+    notes: string;
+  };
   setSaleData: (data: any) => void;
   handleSaveNewSkin: () => void;
   handleSaveSkinEdit: () => void;
@@ -52,374 +53,266 @@ export const SkinFormDialog = ({
   setSaleData,
   handleSaveNewSkin,
   handleSaveSkinEdit,
-  handleSellSkin
+  handleSellSkin,
 }: SkinFormDialogProps) => {
-  const { t } = useI18n();
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  
-  const handleAddInputChange = (field: string, value: string | number) => {
-    setNewSkinData({
-      ...newSkinData,
-      [field]: value,
-    });
-    
-    // Clear validation error for this field if it exists
-    if (validationErrors[field]) {
-      const newErrors = { ...validationErrors };
-      delete newErrors[field];
-      setValidationErrors(newErrors);
-    }
+  const getTitle = () => {
+    if (actionType === 'add') return "Add New Skin";
+    if (actionType === 'sell') return "Sell Skin";
+    return "Edit Skin";
   };
-  
-  const handleEditInputChange = (field: string, value: string | number) => {
-    if (!editSkinData) return;
-    
-    setEditSkinData({
-      ...editSkinData,
-      [field]: value,
-    });
-    
-    // Clear validation error for this field if it exists
-    if (validationErrors[field]) {
-      const newErrors = { ...validationErrors };
-      delete newErrors[field];
-      setValidationErrors(newErrors);
-    }
+
+  const getDescription = () => {
+    if (actionType === 'add') return "Add a new skin to your inventory";
+    if (actionType === 'sell') return `Sell ${selectedSkin?.name} from your inventory`;
+    return "Edit the details of your skin";
   };
-  
-  const handleSaleInputChange = (field: string, value: string | number) => {
-    setSaleData({
-      ...saleData,
-      [field]: value,
-    });
-    
-    // Clear validation error for this field if it exists
-    if (validationErrors[field]) {
-      const newErrors = { ...validationErrors };
-      delete newErrors[field];
-      setValidationErrors(newErrors);
-    }
-  };
-  
-  const validateForm = () => {
-    const errors: Record<string, string> = {};
-    
+
+  const renderContent = () => {
     if (actionType === 'add') {
-      if (!newSkinData.name) errors.name = 'Name is required';
-      if (!newSkinData.float) errors.float = 'Float is required';
-      if (!newSkinData.wear) errors.wear = 'Wear is required';
-      if (!newSkinData.purchase_price) errors.purchase_price = 'Purchase price is required';
-      if (!newSkinData.current_price) errors.current_price = 'Current price is required';
-    } else if (actionType === 'edit') {
-      if (!editSkinData?.name) errors.name = 'Name is required';
-      if (!editSkinData?.float) errors.float = 'Float is required';
-      if (!editSkinData?.wear) errors.wear = 'Wear is required';
-      if (!editSkinData?.purchase_price) errors.purchase_price = 'Purchase price is required';
-      if (!editSkinData?.current_price) errors.current_price = 'Current price is required';
-    } else if (actionType === 'sell') {
-      if (!saleData.salePrice) errors.salePrice = 'Sale price is required';
-    }
-    
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-  
-  const handleSubmit = () => {
-    if (!validateForm()) return;
-    
-    if (actionType === 'add') {
-      handleSaveNewSkin();
-    } else if (actionType === 'edit') {
-      handleSaveSkinEdit();
-    } else if (actionType === 'sell') {
-      handleSellSkin();
-    }
-  };
-  
-  const renderAddEditForm = () => {
-    const data = actionType === 'add' ? newSkinData : editSkinData;
-    const handleChange = actionType === 'add' ? handleAddInputChange : handleEditInputChange;
-    
-    if (!data) return null;
-    
-    return (
-      <div className="grid grid-cols-1 gap-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">{t('name')}</Label>
+      return (
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="name" className="text-right text-white/70">Name</label>
             <Input
               id="name"
-              value={data.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="AWP | Dragon Lore"
-              className={validationErrors.name ? 'border-red-500' : ''}
+              className="col-span-3 bg-black/20 border-white/10"
+              value={newSkinData.name}
+              onChange={(e) => setNewSkinData({ ...newSkinData, name: e.target.value })}
             />
-            {validationErrors.name && (
-              <p className="text-red-500 text-xs mt-1">{validationErrors.name}</p>
-            )}
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="float">{t('floatValue')}</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="float" className="text-right text-white/70">Float</label>
             <Input
               id="float"
-              value={data.float}
-              onChange={(e) => handleChange('float', e.target.value)}
-              placeholder="0.0132"
-              className={validationErrors.float ? 'border-red-500' : ''}
+              className="col-span-3 bg-black/20 border-white/10"
+              value={newSkinData.float}
+              onChange={(e) => setNewSkinData({ ...newSkinData, float: e.target.value })}
             />
-            {validationErrors.float && (
-              <p className="text-red-500 text-xs mt-1">{validationErrors.float}</p>
-            )}
           </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="wear">{t('wear')}</Label>
-            <Select
-              value={data.wear}
-              onValueChange={(value) => handleChange('wear', value)}
-            >
-              <SelectTrigger className={validationErrors.wear ? 'border-red-500' : ''}>
-                <SelectValue placeholder="Select wear" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="Factory New">Factory New</SelectItem>
-                  <SelectItem value="Minimal Wear">Minimal Wear</SelectItem>
-                  <SelectItem value="Field-Tested">Field-Tested</SelectItem>
-                  <SelectItem value="Well-Worn">Well-Worn</SelectItem>
-                  <SelectItem value="Battle-Scarred">Battle-Scarred</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            {validationErrors.wear && (
-              <p className="text-red-500 text-xs mt-1">{validationErrors.wear}</p>
-            )}
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="pattern">{t('pattern')}</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="wear" className="text-right text-white/70">Wear</label>
             <Input
-              id="pattern"
-              value={data.pattern || ''}
-              onChange={(e) => handleChange('pattern', e.target.value)}
-              placeholder="661"
+              id="wear"
+              className="col-span-3 bg-black/20 border-white/10"
+              value={newSkinData.wear}
+              onChange={(e) => setNewSkinData({ ...newSkinData, wear: e.target.value })}
             />
           </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="purchase_price">{t('purchasePrice')}</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="purchasePrice" className="text-right text-white/70">Purchase Price</label>
+            <div className="relative col-span-3">
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" size={16} />
+              <Input
+                id="purchasePrice"
+                type="number"
+                className="pl-10 bg-black/20 border-white/10"
+                value={newSkinData.purchase_price.toString()}
+                onChange={(e) => setNewSkinData({ ...newSkinData, purchase_price: parseFloat(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="currentPrice" className="text-right text-white/70">Current Price</label>
+            <div className="relative col-span-3">
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" size={16} />
+              <Input
+                id="currentPrice"
+                type="number"
+                className="pl-10 bg-black/20 border-white/10"
+                value={newSkinData.current_price.toString()}
+                onChange={(e) => setNewSkinData({ ...newSkinData, current_price: parseFloat(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="image" className="text-right text-white/70">Image URL</label>
             <Input
-              id="purchase_price"
-              type="number"
-              value={data.purchase_price}
-              onChange={(e) => handleChange('purchase_price', parseFloat(e.target.value))}
-              placeholder="1000.00"
-              className={validationErrors.purchase_price ? 'border-red-500' : ''}
+              id="image"
+              className="col-span-3 bg-black/20 border-white/10"
+              value={newSkinData.image}
+              onChange={(e) => setNewSkinData({ ...newSkinData, image: e.target.value })}
+              placeholder="https://example.com/image.png (leave empty for default)"
             />
-            {validationErrors.purchase_price && (
-              <p className="text-red-500 text-xs mt-1">{validationErrors.purchase_price}</p>
-            )}
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="current_price">{t('currentPrice')}</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="notes" className="text-right text-white/70">Notes</label>
+            <Textarea
+              id="notes"
+              className="col-span-3 bg-black/20 border-white/10 min-h-[80px]"
+              value={newSkinData.notes}
+              onChange={(e) => setNewSkinData({ ...newSkinData, notes: e.target.value })}
+              placeholder="Optional notes about this skin"
+            />
+          </div>
+        </div>
+      );
+    } else if (actionType === 'sell' && selectedSkin) {
+      return (
+        <div className="grid gap-4 py-4">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-24 h-24 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center">
+              <img 
+                src={selectedSkin.image} 
+                alt={selectedSkin.name} 
+                className="w-full h-full object-contain" 
+                style={{ filter: 'drop-shadow(0 0 3px rgba(0, 212, 255, 0.5))' }}
+              />
+            </div>
+          </div>
+          <div className="text-center mb-2">
+            <div className="font-medium text-lg">{selectedSkin.name}</div>
+            <div className="text-white/60 text-sm">Current value: ${typeof selectedSkin.current_price === 'number' ? selectedSkin.current_price.toFixed(2) : selectedSkin.current_price}</div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="salePrice" className="text-right text-white/70">Sale Price</label>
+            <div className="relative col-span-3">
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" size={16} />
+              <Input
+                id="salePrice"
+                type="number"
+                className="pl-10 bg-black/20 border-white/10"
+                value={saleData.salePrice.toString()}
+                onChange={(e) => setSaleData({ ...saleData, salePrice: parseFloat(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="notes" className="text-right text-white/70">Notes</label>
+            <Textarea
+              id="notes"
+              className="col-span-3 bg-black/20 border-white/10 min-h-[80px]"
+              value={saleData.notes}
+              onChange={(e) => setSaleData({ ...saleData, notes: e.target.value })}
+              placeholder="Optional notes about this sale"
+            />
+          </div>
+        </div>
+      );
+    } else if (actionType === 'edit' && editSkinData) {
+      return (
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="name" className="text-right text-white/70">Name</label>
             <Input
-              id="current_price"
-              type="number"
-              value={data.current_price}
-              onChange={(e) => handleChange('current_price', parseFloat(e.target.value))}
-              placeholder="1200.00"
-              className={validationErrors.current_price ? 'border-red-500' : ''}
+              id="name"
+              className="col-span-3 bg-black/20 border-white/10"
+              value={editSkinData.name}
+              onChange={(e) => setEditSkinData({ ...editSkinData, name: e.target.value })}
             />
-            {validationErrors.current_price && (
-              <p className="text-red-500 text-xs mt-1">{validationErrors.current_price}</p>
-            )}
           </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="rarity">{t('rarity')}</Label>
-            <Select
-              value={data.rarity || ''}
-              onValueChange={(value) => handleChange('rarity', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select rarity" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="Consumer">Consumer Grade</SelectItem>
-                  <SelectItem value="Industrial">Industrial Grade</SelectItem>
-                  <SelectItem value="Mil-Spec">Mil-Spec Grade</SelectItem>
-                  <SelectItem value="Restricted">Restricted</SelectItem>
-                  <SelectItem value="Classified">Classified</SelectItem>
-                  <SelectItem value="Covert">Covert</SelectItem>
-                  <SelectItem value="Contraband">Contraband</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="collection">{t('collection')}</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="float" className="text-right text-white/70">Float</label>
             <Input
-              id="collection"
-              value={data.collection || ''}
-              onChange={(e) => handleChange('collection', e.target.value)}
-              placeholder="The Cobblestone Collection"
+              id="float"
+              className="col-span-3 bg-black/20 border-white/10"
+              value={editSkinData.float}
+              onChange={(e) => setEditSkinData({ ...editSkinData, float: e.target.value })}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="wear" className="text-right text-white/70">Wear</label>
+            <Input
+              id="wear"
+              className="col-span-3 bg-black/20 border-white/10"
+              value={editSkinData.wear}
+              onChange={(e) => setEditSkinData({ ...editSkinData, wear: e.target.value })}
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="purchasePrice" className="text-right text-white/70">Purchase Price</label>
+            <div className="relative col-span-3">
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" size={16} />
+              <Input
+                id="purchasePrice"
+                type="number"
+                className="pl-10 bg-black/20 border-white/10"
+                value={editSkinData.purchase_price.toString()}
+                onChange={(e) => setEditSkinData({ ...editSkinData, purchase_price: parseFloat(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="currentPrice" className="text-right text-white/70">Current Price</label>
+            <div className="relative col-span-3">
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40" size={16} />
+              <Input
+                id="currentPrice"
+                type="number"
+                className="pl-10 bg-black/20 border-white/10"
+                value={editSkinData.current_price.toString()}
+                onChange={(e) => setEditSkinData({ ...editSkinData, current_price: parseFloat(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="notes" className="text-right text-white/70">Notes</label>
+            <Textarea
+              id="notes"
+              className="col-span-3 bg-black/20 border-white/10 min-h-[80px]"
+              value={editSkinData.notes || ''}
+              onChange={(e) => setEditSkinData({ ...editSkinData, notes: e.target.value })}
+              placeholder="Optional notes about this skin"
             />
           </div>
         </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="stickers">{t('stickers')}</Label>
-          <Input
-            id="stickers"
-            value={data.stickers || ''}
-            onChange={(e) => handleChange('stickers', e.target.value)}
-            placeholder="Titan (Holo) | Katowice 2014"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="image">Image URL</Label>
-          <Input
-            id="image"
-            value={data.image || ''}
-            onChange={(e) => handleChange('image', e.target.value)}
-            placeholder="https://example.com/image.png"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="notes">Notes</Label>
-          <Textarea
-            id="notes"
-            value={data.notes || ''}
-            onChange={(e) => handleChange('notes', e.target.value)}
-            placeholder="Add notes about this skin"
-            className="min-h-[100px]"
-          />
-        </div>
-      </div>
-    );
-  };
-  
-  const renderSellForm = () => {
-    if (!selectedSkin) return null;
+      );
+    }
     
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center space-x-4 mb-4">
-          <div className="w-16 h-16 bg-black/50 rounded-lg overflow-hidden border border-white/10 flex items-center justify-center">
-            <img 
-              src={selectedSkin.image} 
-              alt={selectedSkin.name} 
-              className="w-full h-full object-contain" 
-            />
-          </div>
-          <div>
-            <h3 className="font-bold text-lg">{selectedSkin.name}</h3>
-            <p className="text-sm text-white/60">{selectedSkin.float} | {selectedSkin.wear}</p>
-          </div>
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="salePrice">Sale Price</Label>
-          <Input
-            id="salePrice"
-            type="number"
-            value={saleData.salePrice}
-            onChange={(e) => handleSaleInputChange('salePrice', parseFloat(e.target.value))}
-            placeholder="1200.00"
-            className={validationErrors.salePrice ? 'border-red-500' : ''}
-          />
-          {validationErrors.salePrice && (
-            <p className="text-red-500 text-xs mt-1">{validationErrors.salePrice}</p>
-          )}
-        </div>
-        
-        <div className="rounded-lg bg-white/5 p-4">
-          <div className="flex justify-between mb-2">
-            <span className="text-white/60">Purchase Price:</span>
-            <span className="font-mono">${typeof selectedSkin.purchase_price === 'number' ? selectedSkin.purchase_price.toFixed(2) : selectedSkin.purchase_price}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="text-white/60">Current Market Price:</span>
-            <span className="font-mono">${typeof selectedSkin.current_price === 'number' ? selectedSkin.current_price.toFixed(2) : selectedSkin.current_price}</span>
-          </div>
-          <div className="flex justify-between font-medium pt-2 border-t border-white/10">
-            <span>Profit/Loss:</span>
-            <span className={`font-mono ${saleData.salePrice >= selectedSkin.purchase_price ? 'text-green-500' : 'text-red-500'}`}>
-              {saleData.salePrice >= selectedSkin.purchase_price ? '+' : ''}
-              ${(saleData.salePrice - selectedSkin.purchase_price).toFixed(2)}
-              <span className="text-xs ml-1">
-                ({(((saleData.salePrice - selectedSkin.purchase_price) / selectedSkin.purchase_price) * 100).toFixed(2)}%)
-              </span>
-            </span>
-          </div>
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="saleNotes">Notes</Label>
-          <Textarea
-            id="saleNotes"
-            value={saleData.notes}
-            onChange={(e) => handleSaleInputChange('notes', e.target.value)}
-            placeholder="Add notes about this sale"
-            className="min-h-[100px]"
-          />
-        </div>
-      </div>
-    );
+    return null;
   };
-  
+
+  const renderFooter = () => {
+    if (actionType === 'add') {
+      return (
+        <Button 
+          onClick={handleSaveNewSkin} 
+          className="bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 rounded-xl"
+        >
+          Add Skin
+        </Button>
+      );
+    } else if (actionType === 'sell') {
+      return (
+        <Button 
+          onClick={handleSellSkin}
+          className="bg-neon-red/20 hover:bg-neon-red/40 text-white border border-neon-red/30 rounded-xl"
+        >
+          Sell Skin
+        </Button>
+      );
+    } else {
+      return (
+        <Button 
+          onClick={handleSaveSkinEdit}
+          className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl"
+        >
+          Save Changes
+        </Button>
+      );
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-[#14141f] border border-white/10 text-white max-w-2xl rounded-xl">
+      <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {actionType === 'add' && t('addSkin')}
-            {actionType === 'edit' && t('editSkin')}
-            {actionType === 'sell' && t('sellSkin')}
-          </DialogTitle>
+          <DialogTitle className="text-xl font-bold">{getTitle()}</DialogTitle>
           <DialogDescription className="text-white/70">
-            {actionType === 'add' && t('addToInventory')}
-            {actionType === 'edit' && t('saveChanges')}
-            {actionType === 'sell' && t('sellFromInventory')}
+            {getDescription()}
           </DialogDescription>
         </DialogHeader>
         
-        {actionType === 'add' || actionType === 'edit' ? renderAddEditForm() : renderSellForm()}
+        {renderContent()}
         
-        <DialogFooter className="mt-6">
+        <DialogFooter className="flex justify-end gap-3">
           <Button 
             variant="outline" 
             onClick={onClose}
-            className="border-white/20 hover:bg-white/10"
+            className="border-white/10 hover:bg-white/10"
           >
-            {t('cancel')}
+            Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit}
-            className={`px-6 ${
-              actionType === 'add' 
-                ? 'bg-neon-green/20 hover:bg-neon-green/40 border border-neon-green/30' 
-                : actionType === 'edit'
-                  ? 'bg-neon-blue/20 hover:bg-neon-blue/40 border border-neon-blue/30'
-                  : 'bg-neon-red/20 hover:bg-neon-red/40 border border-neon-red/30'
-            }`}
-          >
-            {actionType === 'add' && t('addSkin')}
-            {actionType === 'edit' && t('saveChanges')}
-            {actionType === 'sell' && t('confirm')}
-          </Button>
+          {renderFooter()}
         </DialogFooter>
       </DialogContent>
     </Dialog>

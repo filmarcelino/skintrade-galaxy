@@ -15,12 +15,6 @@ export interface Skin {
   updated_at?: string;
   profitLoss?: number; // calculated field
   
-  // CS2 specific details
-  pattern?: string;
-  stickers?: string;
-  rarity?: string;
-  collection?: string;
-  
   // For backward compatibility with existing components
   purchasePrice?: number; 
   currentPrice?: number;

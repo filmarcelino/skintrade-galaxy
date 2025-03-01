@@ -1,6 +1,5 @@
 
 import { Skin } from "@/types/skin";
-import { useI18n } from "@/lib/i18n";
 import { ExternalLink, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,8 +25,6 @@ export const SkinDetailDialog = ({
   handleDeleteSkin,
   handleInspect
 }: SkinDetailDialogProps) => {
-  const { t } = useI18n();
-  
   if (!selectedSkin) return null;
   
   return (
@@ -36,7 +33,7 @@ export const SkinDetailDialog = ({
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{selectedSkin.name}</DialogTitle>
           <DialogDescription className="text-white/70">
-            {t('skinDetails')}
+            Detailed information about this skin
           </DialogDescription>
         </DialogHeader>
         
@@ -57,7 +54,7 @@ export const SkinDetailDialog = ({
                 onClick={() => handleInspect(selectedSkin.name)}
               >
                 <ExternalLink size={16} className="mr-2" />
-                {t('inspectInGame')}
+                Inspect in-game
               </Button>
               <Button 
                 className="w-full bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 rounded-xl"
@@ -67,7 +64,7 @@ export const SkinDetailDialog = ({
                 }}
               >
                 <Edit size={16} className="mr-2" />
-                {t('editSkin')}
+                Edit Details
               </Button>
               <Button 
                 className="w-full bg-neon-red/20 hover:bg-neon-red/40 text-white border border-neon-red/30 rounded-xl"
@@ -77,7 +74,7 @@ export const SkinDetailDialog = ({
                 }}
               >
                 <Trash2 size={16} className="mr-2" />
-                {t('delete')}
+                Delete Skin
               </Button>
             </div>
           </div>
@@ -85,61 +82,31 @@ export const SkinDetailDialog = ({
           <div className="col-span-2 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white/5 p-4 rounded-xl">
-                <div className="text-white/60 text-sm">{t('floatValue')}</div>
+                <div className="text-white/60 text-sm">Float Value</div>
                 <div className="font-mono text-xl">{selectedSkin.float}</div>
               </div>
               <div className="bg-white/5 p-4 rounded-xl">
-                <div className="text-white/60 text-sm">{t('wear')}</div>
+                <div className="text-white/60 text-sm">Wear</div>
                 <div className="text-xl">{selectedSkin.wear}</div>
               </div>
               <div className="bg-white/5 p-4 rounded-xl">
-                <div className="text-white/60 text-sm">{t('purchasePrice')}</div>
+                <div className="text-white/60 text-sm">Purchase Price</div>
                 <div className="font-mono text-xl">${typeof selectedSkin.purchase_price === 'number' ? selectedSkin.purchase_price.toFixed(2) : selectedSkin.purchase_price}</div>
               </div>
               <div className="bg-white/5 p-4 rounded-xl">
-                <div className="text-white/60 text-sm">{t('currentPrice')}</div>
+                <div className="text-white/60 text-sm">Current Price</div>
                 <div className="font-mono text-xl">${typeof selectedSkin.current_price === 'number' ? selectedSkin.current_price.toFixed(2) : selectedSkin.current_price}</div>
               </div>
             </div>
             
             <div className="bg-white/5 p-4 rounded-xl">
-              <div className="text-white/60 text-sm">{t('profitLoss')}</div>
+              <div className="text-white/60 text-sm">Profit/Loss</div>
               <div className={`font-mono text-2xl ${(selectedSkin.profitLoss ?? (selectedSkin.current_price - selectedSkin.purchase_price)) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {(selectedSkin.profitLoss ?? (selectedSkin.current_price - selectedSkin.purchase_price)) >= 0 ? '+' : ''}${(selectedSkin.profitLoss ?? (selectedSkin.current_price - selectedSkin.purchase_price)).toFixed(2)} 
                 <span className="text-sm ml-2">
                   ({(((selectedSkin.profitLoss ?? (selectedSkin.current_price - selectedSkin.purchase_price)) / selectedSkin.purchase_price) * 100).toFixed(2)}%)
                 </span>
               </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              {selectedSkin.pattern && (
-                <div className="bg-white/5 p-4 rounded-xl">
-                  <div className="text-white/60 text-sm">{t('pattern')}</div>
-                  <div className="text-xl">{selectedSkin.pattern}</div>
-                </div>
-              )}
-              
-              {selectedSkin.stickers && (
-                <div className="bg-white/5 p-4 rounded-xl">
-                  <div className="text-white/60 text-sm">{t('stickers')}</div>
-                  <div className="text-xl">{selectedSkin.stickers}</div>
-                </div>
-              )}
-              
-              {selectedSkin.rarity && (
-                <div className="bg-white/5 p-4 rounded-xl">
-                  <div className="text-white/60 text-sm">{t('rarity')}</div>
-                  <div className="text-xl">{selectedSkin.rarity}</div>
-                </div>
-              )}
-              
-              {selectedSkin.collection && (
-                <div className="bg-white/5 p-4 rounded-xl">
-                  <div className="text-white/60 text-sm">{t('collection')}</div>
-                  <div className="text-xl">{selectedSkin.collection}</div>
-                </div>
-              )}
             </div>
             
             {selectedSkin.notes && (
