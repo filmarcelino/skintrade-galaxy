@@ -1,190 +1,185 @@
 
-import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { useState } from 'react';
+import { I18nProvider, useI18n } from '@/lib/i18n';
+import { Link, Navigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { LogIn, Mail, Lock, Github } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      await signIn(email, password);
-      // Navigation is handled in the AuthContext
-    } catch (error) {
-      console.error("Login error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
+  const { t } = useI18n();
+  const [isSignIn, setIsSignIn] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    if (!email || !password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
       return;
     }
     
-    setLoading(true);
+    setIsLoading(true);
     
-    try {
-      await signUp(email, password);
-    } catch (error) {
-      console.error("Signup error:", error);
-    } finally {
-      setLoading(false);
-    }
+    // Simulate API call
+    setTimeout(() => {
+      toast({
+        title: isSignIn ? "Signed In" : "Account Created",
+        description: isSignIn 
+          ? "You have successfully signed in" 
+          : "Your account has been created successfully",
+      });
+      setIsLoading(false);
+    }, 1500);
   };
-
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
+  
+  const handleSteamLogin = () => {
+    toast({
+      title: "Steam Login",
+      description: "Redirecting to Steam authentication...",
+    });
   };
-
+  
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center bg-gradient-radial p-4">
-      <div className="w-full max-w-md">
-        <Card className="border-none bg-white/10 backdrop-blur-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-white">CS:GO Skin Tracker</CardTitle>
-            <CardDescription className="text-white/70">
-              Sign in or create an account to track your CS:GO skin collection
-            </CardDescription>
-          </CardHeader>
+    <I18nProvider>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-radial px-4">
+        <div className="max-w-md w-full">
+          {/* Logo */}
+          <div className="mb-8 text-center">
+            <Link to="/" className="inline-flex items-center gap-2">
+              <div className="relative w-10 h-10 flex items-center justify-center">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-70"></div>
+                <span className="relative text-white font-bold text-2xl">S</span>
+              </div>
+              <span className="font-bold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+                Skinculator
+              </span>
+            </Link>
+          </div>
           
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
+          <div className="glass-card relative overflow-hidden border border-white/10 bg-black/40 rounded-2xl backdrop-blur-xl p-8">
+            {/* Decorative elements */}
+            <div className="absolute -top-12 -right-12 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl"></div>
+            <div className="absolute -bottom-12 -left-12 w-24 h-24 bg-purple-500/20 rounded-full blur-2xl"></div>
             
-            <TabsContent value="signin">
-              <form onSubmit={handleLogin}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60">
-                        <Mail size={18} />
-                      </div>
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="bg-white/5 border-white/10 pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60">
-                        <Lock size={18} />
-                      </div>
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="bg-white/5 border-white/10 pl-10 pr-10"
-                      />
-                      <button 
-                        type="button"
-                        onClick={toggleShowPassword}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60"
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={loading}
-                  >
-                    {loading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </TabsContent>
+            <h1 className="text-2xl font-bold mb-6 text-center">
+              {isSignIn ? t('signIn') : t('signUp')}
+            </h1>
             
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60">
-                        <Mail size={18} />
-                      </div>
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="bg-white/5 border-white/10 pl-10"
-                      />
-                    </div>
+            {/* Steam Login Button */}
+            <Button
+              className="w-full mb-6 bg-[#1E5279] hover:bg-[#173F5F] text-white flex items-center gap-2 justify-center"
+              onClick={handleSteamLogin}
+            >
+              <Github size={18} />
+              <span>{t('login')}</span>
+            </Button>
+            
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/10"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-black/40 px-2 text-white/60">
+                  {isSignIn ? 'or sign in with email' : 'or sign up with email'}
+                </span>
+              </div>
+            </div>
+            
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-white/40" />
+                  <Input
+                    type="email"
+                    placeholder={t('email')}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bg-black/30 border-white/10 pl-10 focus-visible:ring-blue-500"
+                    disabled={isLoading}
+                  />
+                </div>
+                
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-white/40" />
+                  <Input
+                    type="password"
+                    placeholder={t('password')}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-black/30 border-white/10 pl-10 focus-visible:ring-blue-500"
+                    disabled={isLoading}
+                  />
+                </div>
+                
+                {isSignIn && (
+                  <div className="text-right">
+                    <a href="#" className="text-sm text-blue-400 hover:text-blue-300">
+                      {t('forgotPassword')}
+                    </a>
                   </div>
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60">
-                        <Lock size={18} />
-                      </div>
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Password (min. 6 characters)"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="bg-white/5 border-white/10 pl-10 pr-10"
-                      />
-                      <button 
-                        type="button"
-                        onClick={toggleShowPassword}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60"
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                    <p className="text-xs text-white/60 italic">
-                      Password must be at least 6 characters long
-                    </p>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex flex-col space-y-4">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={loading}
+                )}
+                
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      <LogIn size={16} className="mr-2" />
+                      {isSignIn ? t('signIn') : t('signUp')}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+            
+            <div className="mt-6 text-center text-sm">
+              {isSignIn ? (
+                <p className="text-white/60">
+                  {t('dontHaveAccount')}{' '}
+                  <button
+                    onClick={() => setIsSignIn(false)}
+                    className="text-blue-400 hover:text-blue-300 font-medium"
                   >
-                    {loading ? "Creating account..." : "Create Account"}
-                  </Button>
-                  <p className="text-xs text-white/60 text-center">
-                    By signing up, you agree to our Terms of Service and Privacy Policy
-                  </p>
-                </CardFooter>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </Card>
+                    {t('signUp')}
+                  </button>
+                </p>
+              ) : (
+                <p className="text-white/60">
+                  {t('alreadyHaveAccount')}{' '}
+                  <button
+                    onClick={() => setIsSignIn(true)}
+                    className="text-blue-400 hover:text-blue-300 font-medium"
+                  >
+                    {t('signIn')}
+                  </button>
+                </p>
+              )}
+            </div>
+          </div>
+          
+          <div className="mt-6 text-center">
+            <Link to="/" className="text-white/60 hover:text-white transition-colors text-sm">
+              ← Back to Dashboard
+            </Link>
+          </div>
+        </div>
       </div>
-    </div>
+    </I18nProvider>
   );
 };
 

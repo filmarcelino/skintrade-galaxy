@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from "sonner";
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   session: Session | null;
@@ -21,6 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Get initial session
@@ -47,17 +48,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
-        toast.error(error.message);
+        toast({
+          title: "Erro ao fazer login",
+          description: error.message,
+          variant: "destructive",
+        });
         return;
       }
       
-      // Redirect to dashboard after successful login
-      navigate('/dashboard');
-      toast.success("Successfully signed in!");
+      navigate('/');
     } catch (error) {
       console.error('Login error:', error);
-      toast.error("An unexpected error occurred during login.");
-      throw error;
+      toast({
+        title: "Erro ao fazer login",
+        description: "Ocorreu um erro inesperado ao fazer login.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -66,15 +72,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signUp({ email, password });
       
       if (error) {
-        toast.error(error.message);
+        toast({
+          title: "Erro ao criar conta",
+          description: error.message,
+          variant: "destructive",
+        });
         return;
       }
       
-      toast.success("Account created successfully! Please check your email for verification.");
+      toast({
+        title: "Conta criada com sucesso",
+        description: "Verifique seu e-mail para confirmar o cadastro.",
+      });
     } catch (error) {
       console.error('Signup error:', error);
-      toast.error("An unexpected error occurred while creating your account.");
-      throw error;
+      toast({
+        title: "Erro ao criar conta",
+        description: "Ocorreu um erro inesperado ao criar a conta.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -84,7 +100,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       navigate('/auth');
     } catch (error) {
       console.error('Logout error:', error);
-      toast.error("An unexpected error occurred during logout.");
+      toast({
+        title: "Erro ao sair",
+        description: "Ocorreu um erro inesperado ao fazer logout.",
+        variant: "destructive",
+      });
     }
   };
 
