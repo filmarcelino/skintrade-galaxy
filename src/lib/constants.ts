@@ -1,3 +1,4 @@
+
 export type LanguageCode = 'en' | 'es' | 'pt-br';
 
 export const LANGUAGES = {
@@ -31,6 +32,16 @@ export const TRANSLATIONS: Translations = {
     buyCredits: 'Buy Credits',
     analyzeMarket: 'Analyze Market',
     
+    // Dashboard
+    welcomeToSkinculator: 'Welcome to Skinculator',
+    skinPortfolio: 'Skin Portfolio',
+    totalValue: 'Total Value',
+    totalProfit: 'Total Profit/Loss',
+    totalItems: 'Total Items',
+    bestPerformers: 'Best Performers',
+    worstPerformers: 'Worst Performers',
+    recentActivity: 'Recent Activity',
+    
     // Skin table
     skinInventory: 'Skin Inventory',
     name: 'Name',
@@ -59,9 +70,21 @@ export const TRANSLATIONS: Translations = {
     
     // Footer
     copyright: '© 2025 Clutch Studios. All rights reserved.',
+    allRightsReserved: 'All rights reserved.',
     terms: 'Terms',
     privacy: 'Privacy',
     support: 'Support',
+    about: 'About',
+    blog: 'Blog',
+    
+    // Auth
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    email: 'Email',
+    password: 'Password',
+    forgotPassword: 'Forgot password?',
+    dontHaveAccount: "Don't have an account?",
+    alreadyHaveAccount: 'Already have an account?',
   },
   es: {
     // Navbar
@@ -76,6 +99,16 @@ export const TRANSLATIONS: Translations = {
     aiCredits: 'Créditos IA',
     buyCredits: 'Comprar Créditos',
     analyzeMarket: 'Analizar Mercado',
+    
+    // Dashboard
+    welcomeToSkinculator: 'Bienvenido a Skinculator',
+    skinPortfolio: 'Portafolio de Skins',
+    totalValue: 'Valor Total',
+    totalProfit: 'Ganancia/Pérdida Total',
+    totalItems: 'Total de Items',
+    bestPerformers: 'Mejores Rendimientos',
+    worstPerformers: 'Peores Rendimientos',
+    recentActivity: 'Actividad Reciente',
     
     // Skin table
     skinInventory: 'Inventario de Skins',
@@ -105,9 +138,21 @@ export const TRANSLATIONS: Translations = {
     
     // Footer
     copyright: '© 2025 Clutch Studios. Todos los derechos reservados.',
+    allRightsReserved: 'Todos los derechos reservados.',
     terms: 'Términos',
     privacy: 'Privacidad',
     support: 'Soporte',
+    about: 'Acerca de',
+    blog: 'Blog',
+    
+    // Auth
+    signIn: 'Iniciar Sesión',
+    signUp: 'Registrarse',
+    email: 'Correo electrónico',
+    password: 'Contraseña',
+    forgotPassword: '¿Olvidaste tu contraseña?',
+    dontHaveAccount: "¿No tienes una cuenta?",
+    alreadyHaveAccount: '¿Ya tienes una cuenta?',
   },
   'pt-br': {
     // Navbar
@@ -122,6 +167,16 @@ export const TRANSLATIONS: Translations = {
     aiCredits: 'Créditos IA',
     buyCredits: 'Comprar Créditos',
     analyzeMarket: 'Analisar Mercado',
+    
+    // Dashboard
+    welcomeToSkinculator: 'Bem-vindo ao Skinculator',
+    skinPortfolio: 'Portfólio de Skins',
+    totalValue: 'Valor Total',
+    totalProfit: 'Lucro/Prejuízo Total',
+    totalItems: 'Total de Itens',
+    bestPerformers: 'Melhores Desempenhos',
+    worstPerformers: 'Piores Desempenhos',
+    recentActivity: 'Atividade Recente',
     
     // Skin table
     skinInventory: 'Inventário de Skins',
@@ -151,13 +206,25 @@ export const TRANSLATIONS: Translations = {
     
     // Footer
     copyright: '© 2025 Clutch Studios. Todos os direitos reservados.',
+    allRightsReserved: 'Todos os direitos reservados.',
     terms: 'Termos',
     privacy: 'Privacidade',
     support: 'Suporte',
+    about: 'Sobre',
+    blog: 'Blog',
+    
+    // Auth
+    signIn: 'Entrar',
+    signUp: 'Cadastrar',
+    email: 'Email',
+    password: 'Senha',
+    forgotPassword: 'Esqueceu a senha?',
+    dontHaveAccount: "Não tem uma conta?",
+    alreadyHaveAccount: 'Já tem uma conta?',
   },
 };
 
-// Example skin data for the table
+// Example skin data for the demo
 export const SAMPLE_SKINS = [
   {
     id: 1,

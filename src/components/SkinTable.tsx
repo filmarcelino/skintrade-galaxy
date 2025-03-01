@@ -1,7 +1,16 @@
 
+import { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { SAMPLE_SKINS } from '@/lib/constants';
-import { ArrowDownIcon, ArrowUpIcon, MoreHorizontal, ShoppingCart, Plus, ExternalLink } from 'lucide-react';
+import { 
+  ArrowDownIcon, 
+  ArrowUpIcon, 
+  MoreHorizontal, 
+  ExternalLink, 
+  Trash2,
+  Edit,
+  Plus
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,17 +18,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 const SkinTable = () => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Pre-load images
-  useEffect(() => {
+  useState(() => {
     SAMPLE_SKINS.forEach(skin => {
       const img = new Image();
       img.onload = () => {
@@ -30,29 +39,16 @@ const SkinTable = () => {
       };
       img.src = skin.image;
     });
-  }, []);
+  });
   
-  const handleBuySkin = (skinName: string) => {
-    toast({
-      title: 'Purchase Initiated',
-      description: `You are about to purchase ${skinName}`,
-      variant: 'default',
-    });
-  };
-  
-  const handleSellSkin = (skinName: string) => {
-    toast({
-      title: 'Sale Initiated',
-      description: `You are about to sell ${skinName}`,
-      variant: 'default',
-    });
-  };
+  const filteredSkins = SAMPLE_SKINS.filter(skin => 
+    skin.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   
   const handleAddToTrade = (skinName: string) => {
     toast({
       title: 'Added to Trade',
       description: `${skinName} has been added to your trade offer`,
-      variant: 'default',
     });
   };
   
@@ -60,72 +56,83 @@ const SkinTable = () => {
     toast({
       title: 'Inspect Weapon',
       description: `Opening inspection for ${skinName}`,
-      variant: 'default',
     });
-    // Simulate opening the inspection link
-    setTimeout(() => {
-      window.open(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(skinName)}`, '_blank');
-    }, 1000);
   };
 
   return (
-    <div className="overflow-hidden">
-      <div className="p-6 pb-3 flex justify-between items-center">
+    <div className="glass-card rounded-xl overflow-hidden">
+      <div className="p-6 pb-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold">{t('skinInventory')}</h2>
-          <p className="text-white/70 text-sm">Manage your items, track values, and view market trends.</p>
+          <p className="text-white/70 text-sm">View your skins, track prices, and manage your collection.</p>
         </div>
-        <Link to="/inventory">
-          <Button className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30 rounded-xl">
-            See All
-          </Button>
-        </Link>
+        
+        <div className="relative">
+          <Input 
+            className="pl-10 bg-black/20 border-white/10 focus:border-blue-400/50 w-full md:w-64"
+            placeholder="Search skins..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 w-4 h-4"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
       </div>
       
       <div className="overflow-x-auto">
         <table className="skinculator-table">
           <thead>
             <tr>
-              <th className="rounded-tl-xl">{t('name')}</th>
+              <th>{t('name')}</th>
               <th>{t('float')}</th>
               <th>{t('wear')}</th>
               <th>{t('purchasePrice')}</th>
               <th>{t('currentPrice')}</th>
               <th>{t('profitLoss')}</th>
               <th>{t('trend')}</th>
-              <th className="text-right rounded-tr-xl">{t('actions')}</th>
+              <th className="text-right">{t('actions')}</th>
             </tr>
           </thead>
           <tbody>
-            {SAMPLE_SKINS.map((skin, index) => (
+            {filteredSkins.map((skin, index) => (
               <tr 
                 key={skin.id} 
-                className={`transition-colors group ${
-                  index === SAMPLE_SKINS.length - 1 ? 'last-row' : ''
+                className={`transition-colors hover:bg-white/5 ${
+                  index === filteredSkins.length - 1 ? 'last-row' : ''
                 }`}
               >
                 <td>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-glow-sm hover:shadow-glow-lg transition-all duration-300">
+                    <div className="w-12 h-12 bg-black/50 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-glow-sm">
                       <div className="relative w-10 h-10">
                         {!loadedImages[skin.id] && (
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-5 h-5 border-2 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
                           </div>
                         )}
                         <img 
                           src={skin.image} 
                           alt={skin.name} 
-                          className={`w-full h-full object-contain group-hover:scale-110 transition-transform duration-300 ${
+                          className={`w-full h-full object-contain ${
                             loadedImages[skin.id] ? 'opacity-100' : 'opacity-0'
                           }`} 
-                          style={{ filter: 'drop-shadow(0 0 3px rgba(0, 212, 255, 0.5))' }}
+                          style={{ filter: 'drop-shadow(0 0 3px rgba(0, 170, 255, 0.5))' }}
                         />
                       </div>
                     </div>
-                    <div>
+                    <div className="text-left">
                       <div className="font-medium">{skin.name}</div>
-                      <div className="text-xs text-white/60">Acquired 2 days ago</div>
                     </div>
                   </div>
                 </td>
@@ -160,41 +167,34 @@ const SkinTable = () => {
                   )}
                 </td>
                 <td className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button 
-                      size="sm" 
-                      className="bg-neon-green/20 hover:bg-neon-green/40 text-white border border-neon-green/30 h-8 px-2 rounded-full"
-                      onClick={() => handleBuySkin(skin.name)}
-                    >
-                      <Plus size={14} />
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      className="bg-neon-red/20 hover:bg-neon-red/40 text-white border border-neon-red/30 h-8 px-2 rounded-full"
-                      onClick={() => handleSellSkin(skin.name)}
-                    >
-                      <ShoppingCart size={14} />
-                    </Button>
+                  <div className="flex items-center justify-end">
                     <DropdownMenu>
                       <DropdownMenuTrigger className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
                         <MoreHorizontal size={16} />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent 
                         align="end" 
-                        className="bg-black/80 backdrop-blur-xl border border-white/10 text-white min-w-32 rounded-xl"
+                        className="bg-black/80 backdrop-blur-xl border border-white/10 text-white min-w-32"
                       >
                         <DropdownMenuItem 
-                          className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2"
+                          className="cursor-pointer hover:bg-white/10 flex items-center gap-2"
                           onClick={() => handleInspect(skin.name)}
                         >
                           <ExternalLink size={14} />
                           Inspect in-game
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2">
-                          <ShoppingCart size={14} />
-                          Sell Item
+                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 flex items-center gap-2">
+                          <Edit size={14} />
+                          Edit Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 rounded-lg flex items-center gap-2">
+                        <DropdownMenuItem className="cursor-pointer hover:bg-white/10 flex items-center gap-2">
+                          <Trash2 size={14} />
+                          Delete
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="cursor-pointer hover:bg-white/10 flex items-center gap-2"
+                          onClick={() => handleAddToTrade(skin.name)}
+                        >
                           <Plus size={14} />
                           Add to Trade
                         </DropdownMenuItem>

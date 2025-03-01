@@ -11,22 +11,22 @@ const Footer = () => {
         <div className="text-center md:text-left">
           <div className="flex items-center gap-2 mb-2">
             <div className="relative w-8 h-8 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-r from-neon-blue to-neon-purple rounded-full opacity-50"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-70"></div>
               <span className="relative text-white font-bold text-lg">S</span>
             </div>
-            <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-neon-blue via-neon-purple to-neon-green">
+            <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
               Skinculator
             </span>
           </div>
-          <p className="text-white/70">© {currentYear} Skinculator. {t('allRightsReserved') || 'Todos os direitos reservados'}</p>
+          <p className="text-white/70">© 2025 Clutch Studios. {t('allRightsReserved')}</p>
         </div>
         
         <div className="flex gap-6 flex-wrap justify-center">
-          <FooterLink href="/terms">{t('terms') || 'Termos de Uso'}</FooterLink>
-          <FooterLink href="/privacy">{t('privacy') || 'Privacidade'}</FooterLink>
-          <FooterLink href="/support">{t('support') || 'Suporte'}</FooterLink>
-          <FooterLink href="/about">{t('about') || 'Sobre'}</FooterLink>
-          <FooterLink href="/blog">{t('blog') || 'Blog'}</FooterLink>
+          <FooterLink href="/terms">{t('terms')}</FooterLink>
+          <FooterLink href="/privacy">{t('privacy')}</FooterLink>
+          <FooterLink href="/support">{t('support')}</FooterLink>
+          <FooterLink href="/about">{t('about')}</FooterLink>
+          <FooterLink href="/blog">{t('blog')}</FooterLink>
         </div>
       </div>
     </footer>
