@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { I18nProvider, useI18n } from '@/lib/i18n';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -28,9 +28,94 @@ const Inventory = () => {
   const { t } = useI18n();
   const { toast } = useToast();
   const [skins, setSkins] = useState(SAMPLE_SKINS);
+  const [loading, setLoading] = useState(true);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  
+  // Fetch skin data from Supabase
+  useEffect(() => {
+    const fetchSkins = async () => {
+      try {
+        setLoading(true);
+        
+        // Check if user is authenticated
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          // If not logged in, use sample data
+          setSkins(SAMPLE_SKINS.map(skin => ({
+            id: skin.id,
+            name: skin.name,
+            float: String(skin.float),
+            wear: skin.wear,
+            purchase_price: skin.purchasePrice,
+            current_price: skin.currentPrice,
+            image: skin.image,
+            trend: skin.trend as 'up' | 'down',
+            profitLoss: skin.profitLoss
+          })));
+          return;
+        }
+        
+        // Fetch real data from Supabase
+        const { data, error } = await supabase
+          .from('skins')
+          .select('*')
+          .order('id', { ascending: false });
+          
+        if (error) throw error;
+        
+        // Transform data to match our expected format
+        const formattedSkins = data.map(skin => ({
+          id: skin.id,
+          name: skin.name,
+          float: skin.float,
+          wear: skin.wear,
+          purchase_price: skin.purchase_price,
+          current_price: skin.current_price,
+          image: skin.image,
+          trend: skin.trend || 'up',
+          profitLoss: skin.current_price - skin.purchase_price
+        }));
+        
+        setSkins(formattedSkins);
+        
+        // Fetch recent activity
+        const { data: transactions, error: transactionError } = await supabase
+          .from('transactions')
+          .select(`
+            *,
+            skins(name, image)
+          `)
+          .order('created_at', { ascending: false })
+          .limit(3);
+        
+        if (transactionError) throw transactionError;
+        
+        setRecentActivity(transactions);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        // Fallback to sample data
+        setSkins(SAMPLE_SKINS.map(skin => ({
+          id: skin.id,
+          name: skin.name,
+          float: String(skin.float),
+          wear: skin.wear,
+          purchase_price: skin.purchasePrice,
+          current_price: skin.currentPrice,
+          image: skin.image,
+          trend: skin.trend as 'up' | 'down',
+          profitLoss: skin.profitLoss
+        })));
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchSkins();
+  }, []);
   
   // Calculate portfolio metrics
-  const totalValue = skins.reduce((total, skin) => total + skin.currentPrice, 0);
+  const totalValue = skins.reduce((total, skin) => total + skin.current_price, 0);
   const totalProfit = skins.reduce((total, skin) => total + skin.profitLoss, 0);
   const profitPercentage = totalValue > 0 ? (totalProfit / totalValue) * 100 : 0;
   
@@ -41,6 +126,21 @@ const Inventory = () => {
       description: `Opening ${type === 'add' ? 'add new skin' : 'sell skin'} dialog`,
       variant: "default",
     });
+  };
+
+  // Format date to relative time (e.g., "2 days ago")
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
+    
+    return `${Math.floor(diffInSeconds / 2592000)} months ago`;
   };
 
   return (
@@ -103,7 +203,9 @@ const Inventory = () => {
                   Best Performers
                 </h2>
                 <div className="space-y-4">
-                  {skins
+                  {loading ? (
+                    <div className="text-white/50">Loading best performers...</div>
+                  ) : skins
                     .filter(skin => skin.profitLoss > 0)
                     .sort((a, b) => b.profitLoss - a.profitLoss)
                     .slice(0, 3)
@@ -122,7 +224,9 @@ const Inventory = () => {
                   Worst Performers
                 </h2>
                 <div className="space-y-4">
-                  {skins
+                  {loading ? (
+                    <div className="text-white/50">Loading worst performers...</div>
+                  ) : skins
                     .filter(skin => skin.profitLoss < 0)
                     .sort((a, b) => a.profitLoss - b.profitLoss)
                     .slice(0, 3)
@@ -142,44 +246,77 @@ const Inventory = () => {
                 Recent Activity
               </h2>
               <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-neon-green/20 p-2 rounded-full">
-                      <Plus size={16} className="text-neon-green" />
+                {loading ? (
+                  <div className="text-white/50">Loading recent activity...</div>
+                ) : recentActivity.length > 0 ? (
+                  recentActivity.map((transaction, index) => (
+                    <div key={transaction.id} className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className={`${transaction.transaction_type === 'purchase' ? 'bg-neon-green/20' : 'bg-neon-red/20'} p-2 rounded-full`}>
+                          {transaction.transaction_type === 'purchase' ? (
+                            <Plus size={16} className="text-neon-green" />
+                          ) : (
+                            <ShoppingCart size={16} className="text-neon-red" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-medium">
+                            {transaction.transaction_type === 'purchase' ? 'Added ' : 'Sold '}
+                            {transaction.skins ? transaction.skins.name : transaction.notes?.split(' ')[2] || 'Unknown Skin'}
+                          </div>
+                          <div className="text-xs text-white/60">
+                            {formatRelativeTime(transaction.created_at)}
+                          </div>
+                        </div>
+                      </div>
+                      <span className={`font-mono ${transaction.transaction_type === 'purchase' ? 'text-neon-green' : 'text-neon-red'}`}>
+                        {transaction.transaction_type === 'purchase' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                      </span>
                     </div>
-                    <div>
-                      <div className="font-medium">Added AWP | Dragon Lore</div>
-                      <div className="text-xs text-white/60">2 days ago</div>
+                  ))
+                ) : (
+                  // Fallback sample data if no real transactions
+                  <>
+                    <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-neon-green/20 p-2 rounded-full">
+                          <Plus size={16} className="text-neon-green" />
+                        </div>
+                        <div>
+                          <div className="font-medium">Added AWP | Dragon Lore</div>
+                          <div className="text-xs text-white/60">2 days ago</div>
+                        </div>
+                      </div>
+                      <span className="font-mono text-neon-green">+$1,560.75</span>
                     </div>
-                  </div>
-                  <span className="font-mono text-neon-green">+$1,560.75</span>
-                </div>
-                
-                <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-neon-red/20 p-2 rounded-full">
-                      <ShoppingCart size={16} className="text-neon-red" />
+                    
+                    <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-neon-red/20 p-2 rounded-full">
+                          <ShoppingCart size={16} className="text-neon-red" />
+                        </div>
+                        <div>
+                          <div className="font-medium">Sold Glock-18 | Fade</div>
+                          <div className="text-xs text-white/60">5 days ago</div>
+                        </div>
+                      </div>
+                      <span className="font-mono text-neon-red">-$405.50</span>
                     </div>
-                    <div>
-                      <div className="font-medium">Sold Glock-18 | Fade</div>
-                      <div className="text-xs text-white/60">5 days ago</div>
+                    
+                    <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-neon-blue/20 p-2 rounded-full">
+                          <BarChart3 size={16} className="text-neon-blue" />
+                        </div>
+                        <div>
+                          <div className="font-medium">Price change for M4A4 | Howl</div>
+                          <div className="text-xs text-white/60">1 week ago</div>
+                        </div>
+                      </div>
+                      <span className="font-mono text-neon-blue">+$450.00</span>
                     </div>
-                  </div>
-                  <span className="font-mono text-neon-red">-$405.50</span>
-                </div>
-                
-                <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-neon-blue/20 p-2 rounded-full">
-                      <BarChart3 size={16} className="text-neon-blue" />
-                    </div>
-                    <div>
-                      <div className="font-medium">Price change for M4A4 | Howl</div>
-                      <div className="text-xs text-white/60">1 week ago</div>
-                    </div>
-                  </div>
-                  <span className="font-mono text-neon-blue">+$450.00</span>
-                </div>
+                  </>
+                )}
               </div>
             </div>
             
