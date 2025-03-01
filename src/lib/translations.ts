@@ -3,9 +3,10 @@ import { LanguageCode } from './languages';
 
 type TranslationRecord = Record<string, string>;
 
-interface TranslationsMap {
+// Fix the type declaration to avoid the TS7061 error
+type TranslationsMap = {
   [key in LanguageCode]: TranslationRecord;
-}
+};
 
 export const TRANSLATIONS: TranslationsMap = {
   en: {
