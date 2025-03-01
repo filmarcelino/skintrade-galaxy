@@ -1,187 +1,133 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
 
-@layer base {
-  :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --radius: 0.75rem;
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@layer base {
-  * {
-    @apply border-border selection:bg-white/10 selection:text-white;
-  }
-  
-  body {
-    @apply bg-[#0a0a0f] text-foreground antialiased;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-    background-image: radial-gradient(circle at 50% 50%, #14141f 0%, #0a0a0f 100%);
-    background-attachment: fixed;
-  }
-
-  html {
-    @apply scroll-smooth;
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
   }
 }
 
-@layer utilities {
-  .scrollbar-none {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Adicionar mais estilos personalizados */
+@layer base {
+  /* Background gradients */
+  .bg-gradient-radial {
+    background: radial-gradient(circle, rgba(29, 35, 51, 1) 0%, rgba(16, 20, 29, 1) 100%);
   }
   
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
-  }
-
+  /* Glassmorphism cards */
   .glass-card {
-    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3)] transition-all duration-300;
+    @apply bg-white/5 backdrop-blur-sm border border-white/10 relative overflow-hidden;
   }
   
-  .glass-card:hover {
-    @apply bg-white/10 border-white/20 shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4)];
+  /* Neon colors */
+  .text-neon-blue {
+    @apply text-blue-400;
   }
   
-  .neon-border {
-    @apply relative rounded-xl;
+  .text-neon-green {
+    @apply text-green-400;
   }
   
-  .neon-border::before {
-    content: '';
-    @apply absolute inset-0 rounded-xl bg-neon-glow p-[1px] -z-10;
-    filter: blur(8px);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  .text-neon-purple {
+    @apply text-purple-400;
   }
   
-  .neon-border:hover::before {
-    opacity: 1;
+  .text-neon-yellow {
+    @apply text-yellow-400;
   }
   
-  .neon-text {
-    text-shadow: 0 0 10px rgba(0, 243, 255, 0.8), 0 0 20px rgba(0, 243, 255, 0.5);
+  .text-neon-red {
+    @apply text-red-400;
   }
   
-  .neon-button {
-    @apply relative overflow-hidden rounded-xl px-4 py-2 transition-all duration-300 hover:scale-105;
-    background: linear-gradient(90deg, #00f3ff, #9000ff, #ff00e4);
-    background-size: 200% 100%;
-    animation: gradient-flow 3s ease infinite;
-    box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  .text-neon-pink {
+    @apply text-pink-400;
   }
   
-  .neon-button:hover {
-    box-shadow: 0 0 20px rgba(0, 243, 255, 0.8);
-  }
-  
-  .skinculator-table {
-    @apply w-full rounded-xl overflow-hidden;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-  
-  .skinculator-table th {
-    @apply bg-black/50 text-white py-4 px-4 text-left font-medium;
-  }
-  
-  .skinculator-table tr {
-    @apply transition-colors duration-200;
-  }
-  
-  .skinculator-table tr:nth-child(odd) {
-    @apply bg-black/30;
-  }
-  
-  .skinculator-table tr:nth-child(even) {
-    @apply bg-black/40;
-  }
-  
-  .skinculator-table tr:hover {
-    @apply bg-white/10;
-  }
-  
-  .skinculator-table td {
-    @apply py-3 px-4 border-t border-white/5;
-  }
-  
-  .skinculator-table tr:last-child td:first-child {
-    @apply rounded-bl-xl;
-  }
-  
-  .skinculator-table tr:last-child td:last-child {
-    @apply rounded-br-xl;
-  }
-  
-  .page-transition-enter {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  
-  .page-transition-enter-active {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.3s, transform 0.3s;
-  }
-  
-  .page-transition-exit {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  .page-transition-exit-active {
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity 0.3s, transform 0.3s;
-  }
-  
+  /* Glowing shadows */
   .shadow-glow-sm {
-    box-shadow: 0 0 5px rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
   }
   
   .shadow-glow-lg {
-    box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
   }
   
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-in;
+  /* Animated gradient flow */
+  .animate-gradient-flow {
+    background-size: 200% 200%;
+    animation: gradientFlow 5s linear infinite;
   }
   
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  @keyframes gradientFlow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
   
-  @keyframes gradient-flow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  /* Skin table styles */
+  .skinculator-table {
+    @apply w-full table-auto;
   }
-}
-
-#root {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0;
-  text-align: left;
+  
+  .skinculator-table thead tr {
+    @apply bg-black/40;
+  }
+  
+  .skinculator-table th {
+    @apply py-3 px-4 text-left text-xs font-medium uppercase text-white/60;
+  }
+  
+  .skinculator-table td {
+    @apply py-4 px-4 text-sm border-t border-white/5;
+  }
+  
+  .skinculator-table .last-row td {
+    @apply border-b-0;
+  }
+  
+  /* Neon button */
+  .neon-button {
+    @apply bg-neon-blue hover:bg-blue-500 text-white transition-all duration-300 border border-neon-blue/50 hover:shadow-glow-lg;
+  }
 }

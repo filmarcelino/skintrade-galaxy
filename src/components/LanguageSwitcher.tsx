@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
-import { LANGUAGES, LanguageCode } from '@/lib/constants';
+import { LanguageCode, LANGUAGES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
 import {

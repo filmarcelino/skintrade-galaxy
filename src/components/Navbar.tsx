@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Menu, LogIn, X, User } from 'lucide-react';
+import { Menu, X, User, LogIn } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Dialog,
@@ -37,8 +37,8 @@ const Navbar = () => {
   
   const handleLogin = () => {
     toast({
-      title: "Logged In Successfully",
-      description: "Welcome back to Skinculator!",
+      title: "Login realizado com sucesso",
+      description: "Bem-vindo de volta ao Skinculator!",
       variant: "default",
     });
     setIsLoginDialogOpen(false);
@@ -52,21 +52,19 @@ const Navbar = () => {
         <div className="flex items-center">
           <Link to="/" className="flex items-center gap-2">
             <div className="relative w-10 h-10 flex items-center justify-center">
-              <div className="absolute inset-0 bg-neon-glow animate-pulse rounded-full opacity-50"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-neon-blue to-neon-purple rounded-full opacity-50 animate-pulse"></div>
               <span className="relative text-white font-bold text-2xl">S</span>
             </div>
-            <span className="font-bold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink animate-gradient-flow">
+            <span className="font-bold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-neon-blue via-neon-purple to-neon-green animate-gradient-flow">
               Skinculator
             </span>
           </Link>
         </div>
         
         <div className="hidden md:flex items-center space-x-1">
-          <NavLink to="/" active={location.pathname === '/'}>{t('dashboard')}</NavLink>
-          <NavLink to="/marketplace" active={location.pathname === '/marketplace'}>{t('marketplace')}</NavLink>
-          <NavLink to="/inventory" active={location.pathname === '/inventory'}>{t('inventory')}</NavLink>
-          <NavLink to="/analytics" active={location.pathname === '/analytics'}>{t('analytics')}</NavLink>
-          <NavLink to="/settings" active={location.pathname === '/settings'}>{t('settings')}</NavLink>
+          <NavLink to="/" active={location.pathname === '/'}>{t('dashboard') || 'Dashboard'}</NavLink>
+          <NavLink to="/marketplace" active={location.pathname === '/marketplace'}>{t('marketplace') || 'Mercado'}</NavLink>
+          <NavLink to="/inventory" active={location.pathname === '/inventory'}>{t('inventory') || 'Inventário'}</NavLink>
         </div>
         
         <div className="flex items-center gap-4">
@@ -78,15 +76,7 @@ const Navbar = () => {
             onClick={() => setIsLoginDialogOpen(true)}
           >
             <User size={16} />
-            Login
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="hidden md:flex items-center gap-2 bg-white/5 border-white/10 hover:bg-white/10 text-white"
-          >
-            <LogIn size={16} />
-            {t('login')}
+            {t('login') || 'Entrar'}
           </Button>
           
           <button 
@@ -103,13 +93,11 @@ const Navbar = () => {
         isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         <div className="flex flex-col gap-4 p-4">
-          <MobileNavLink to="/" onClick={() => setIsMobileMenuOpen(false)}>{t('dashboard')}</MobileNavLink>
-          <MobileNavLink to="/marketplace" onClick={() => setIsMobileMenuOpen(false)}>{t('marketplace')}</MobileNavLink>
-          <MobileNavLink to="/inventory" onClick={() => setIsMobileMenuOpen(false)}>{t('inventory')}</MobileNavLink>
-          <MobileNavLink to="/analytics" onClick={() => setIsMobileMenuOpen(false)}>{t('analytics')}</MobileNavLink>
-          <MobileNavLink to="/settings" onClick={() => setIsMobileMenuOpen(false)}>{t('settings')}</MobileNavLink>
+          <MobileNavLink to="/" onClick={() => setIsMobileMenuOpen(false)}>{t('dashboard') || 'Dashboard'}</MobileNavLink>
+          <MobileNavLink to="/marketplace" onClick={() => setIsMobileMenuOpen(false)}>{t('marketplace') || 'Mercado'}</MobileNavLink>
+          <MobileNavLink to="/inventory" onClick={() => setIsMobileMenuOpen(false)}>{t('inventory') || 'Inventário'}</MobileNavLink>
           
-          <div className="mt-4 space-y-3">
+          <div className="mt-4">
             <Button 
               variant="outline" 
               className="w-full flex items-center justify-center gap-2 bg-white/5 border-white/10 hover:bg-white/10 text-white"
@@ -118,17 +106,8 @@ const Navbar = () => {
                 setIsMobileMenuOpen(false);
               }}
             >
-              <User size={16} />
-              Login
-            </Button>
-            
-            <Button 
-              variant="outline"
-
-              className="w-full flex items-center justify-center gap-2 bg-white/5 border-white/10 hover:bg-white/10 text-white"
-            >
               <LogIn size={16} />
-              {t('login')}
+              {t('login') || 'Entrar'}
             </Button>
           </div>
         </div>
@@ -138,26 +117,26 @@ const Navbar = () => {
       <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
         <DialogContent className="bg-[#14141f] border border-white/10 text-white rounded-xl">
           <DialogHeader>
-            <DialogTitle>Login to Skinculator</DialogTitle>
+            <DialogTitle>{t('loginToSkinculator') || 'Login no Skinculator'}</DialogTitle>
             <DialogDescription className="text-white/70">
-              Enter your credentials to access your account
+              {t('loginDescription') || 'Digite suas credenciais para acessar sua conta'}
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm text-white/70 block mb-2">Email</label>
+              <label className="text-sm text-white/70 block mb-2">{t('email') || 'Email'}</label>
               <Input 
                 type="email"
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="your.email@example.com"
+                placeholder="seu.email@exemplo.com"
                 className="bg-black/20 border-white/10"
               />
             </div>
             
             <div>
-              <label className="text-sm text-white/70 block mb-2">Password</label>
+              <label className="text-sm text-white/70 block mb-2">{t('password') || 'Senha'}</label>
               <Input 
                 type="password"
                 value={loginPassword}
@@ -170,11 +149,11 @@ const Navbar = () => {
             <div className="flex justify-between items-center">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" className="rounded bg-black/20 border-white/20" />
-                <span className="text-sm text-white/70">Remember me</span>
+                <span className="text-sm text-white/70">{t('rememberMe') || 'Lembrar de mim'}</span>
               </label>
               
               <button className="text-sm text-neon-blue hover:underline">
-                Forgot password?
+                {t('forgotPassword') || 'Esqueceu a senha?'}
               </button>
             </div>
           </div>
@@ -185,20 +164,20 @@ const Navbar = () => {
               onClick={() => setIsLoginDialogOpen(false)}
               className="border-white/10"
             >
-              Cancel
+              {t('cancel') || 'Cancelar'}
             </Button>
             <Button 
               className="bg-neon-blue/20 hover:bg-neon-blue/40 text-white border border-neon-blue/30"
               onClick={handleLogin}
             >
-              Login
+              {t('login') || 'Entrar'}
             </Button>
           </DialogFooter>
           
           <div className="text-center mt-4 text-sm text-white/70">
-            Don't have an account?{" "}
+            {t('dontHaveAccount') || 'Não tem uma conta?'}{" "}
             <button className="text-neon-blue hover:underline">
-              Sign up
+              {t('signUp') || 'Cadastre-se'}
             </button>
           </div>
         </DialogContent>
@@ -230,7 +209,6 @@ const MobileNavLink = ({ to, children, onClick }: { to: string; children: React.
       onClick={onClick}
     >
       {children}
-      <ChevronDown size={20} className="text-white/60" />
     </Link>
   );
 };
