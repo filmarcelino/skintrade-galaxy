@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/lib/i18n";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 // Pages
 import Dashboard from "@/pages/Dashboard";
@@ -22,13 +24,27 @@ const App = () => (
         <Toaster />
         <SonnerToaster />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/inventory" element={
+                <ProtectedRoute>
+                  <Inventory />
+                </ProtectedRoute>
+              } />
+              <Route path="/marketplace" element={
+                <ProtectedRoute>
+                  <Marketplace />
+                </ProtectedRoute>
+              } />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </I18nProvider>

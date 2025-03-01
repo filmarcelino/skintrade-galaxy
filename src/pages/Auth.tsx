@@ -1,11 +1,13 @@
 
 import { useState } from 'react';
 import { I18nProvider, useI18n } from '@/lib/i18n';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { LogIn, Mail, Lock, Github } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
   const { t } = useI18n();

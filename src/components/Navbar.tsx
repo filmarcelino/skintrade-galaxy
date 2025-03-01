@@ -13,13 +13,17 @@ import {
   PackageOpen, 
   BarChart3, 
   Settings,
-  LogIn
+  LogIn,
+  LogOut,
+  User
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
   const { t } = useI18n();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -66,14 +70,27 @@ const Navbar = () => {
             <CreditDisplay />
             <LanguageSwitcher />
             
-            <Button 
-              variant="default" 
-              size="sm"
-              className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-            >
-              <LogIn size={16} />
-              <span>{t('login')}</span>
-            </Button>
+            {user ? (
+              <Button 
+                variant="default" 
+                size="sm"
+                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                onClick={() => signOut()}
+              >
+                <LogOut size={16} />
+                <span>{t('logout')}</span>
+              </Button>
+            ) : (
+              <Button 
+                variant="default" 
+                size="sm"
+                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                onClick={() => window.location.href = '/auth'}
+              >
+                <LogIn size={16} />
+                <span>{t('login')}</span>
+              </Button>
+            )}
             
             {/* Mobile Menu Button */}
             <Button 
@@ -128,15 +145,33 @@ const Navbar = () => {
               {t('settings')}
             </Link>
             
-            <Button 
-              variant="default" 
-              size="sm"
-              className="mt-3 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <LogIn size={16} />
-              <span>{t('login')}</span>
-            </Button>
+            {user ? (
+              <Button 
+                variant="default" 
+                size="sm"
+                className="mt-3 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600"
+                onClick={() => {
+                  signOut();
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                <LogOut size={16} />
+                <span>{t('logout')}</span>
+              </Button>
+            ) : (
+              <Button 
+                variant="default" 
+                size="sm"
+                className="mt-3 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600"
+                onClick={() => {
+                  window.location.href = '/auth';
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                <LogIn size={16} />
+                <span>{t('login')}</span>
+              </Button>
+            )}
           </div>
         </div>
       )}
