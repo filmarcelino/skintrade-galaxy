@@ -70,6 +70,7 @@ const Navbar = () => {
               variant="default" 
               size="sm"
               className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              onClick={() => window.location.href = '/auth'}
             >
               <LogIn size={16} />
               <span>{t('login')}</span>
@@ -132,7 +133,10 @@ const Navbar = () => {
               variant="default" 
               size="sm"
               className="mt-3 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                window.location.href = '/auth';
+              }}
             >
               <LogIn size={16} />
               <span>{t('login')}</span>
