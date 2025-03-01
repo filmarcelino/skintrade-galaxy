@@ -24,10 +24,24 @@ import { useToast } from '@/hooks/use-toast';
 import SkinTable from '@/components/SkinTable';
 import { supabase } from '@/integrations/supabase/client';
 
+// Define a common skin type to use throughout the component
+type Skin = {
+  id: number;
+  name: string;
+  image: string;
+  float: string | number;
+  wear: string;
+  purchasePrice: number;
+  currentPrice: number;
+  profitLoss: number;
+  trend: string;
+  popularity?: string;
+};
+
 const Inventory = () => {
   const { t } = useI18n();
   const { toast } = useToast();
-  const [skins, setSkins] = useState(SAMPLE_SKINS);
+  const [skins, setSkins] = useState<Skin[]>(SAMPLE_SKINS);
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   
@@ -41,18 +55,8 @@ const Inventory = () => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
-          // If not logged in, use sample data
-          setSkins(SAMPLE_SKINS.map(skin => ({
-            id: skin.id,
-            name: skin.name,
-            float: String(skin.float),
-            wear: skin.wear,
-            purchase_price: skin.purchasePrice,
-            current_price: skin.currentPrice,
-            image: skin.image,
-            trend: skin.trend as 'up' | 'down',
-            profitLoss: skin.profitLoss
-          })));
+          // If not logged in, use sample data (already in the correct format)
+          setSkins(SAMPLE_SKINS);
           return;
         }
         
@@ -65,16 +69,17 @@ const Inventory = () => {
         if (error) throw error;
         
         // Transform data to match our expected format
-        const formattedSkins = data.map(skin => ({
+        const formattedSkins: Skin[] = data.map(skin => ({
           id: skin.id,
           name: skin.name,
           float: skin.float,
           wear: skin.wear,
-          purchase_price: skin.purchase_price,
-          current_price: skin.current_price,
+          purchasePrice: skin.purchase_price,
+          currentPrice: skin.current_price,
           image: skin.image,
           trend: skin.trend || 'up',
-          profitLoss: skin.current_price - skin.purchase_price
+          profitLoss: skin.current_price - skin.purchase_price,
+          popularity: 'medium' // Default value for compatibility
         }));
         
         setSkins(formattedSkins);
@@ -95,17 +100,7 @@ const Inventory = () => {
       } catch (err) {
         console.error('Error fetching data:', err);
         // Fallback to sample data
-        setSkins(SAMPLE_SKINS.map(skin => ({
-          id: skin.id,
-          name: skin.name,
-          float: String(skin.float),
-          wear: skin.wear,
-          purchase_price: skin.purchasePrice,
-          current_price: skin.currentPrice,
-          image: skin.image,
-          trend: skin.trend as 'up' | 'down',
-          profitLoss: skin.profitLoss
-        })));
+        setSkins(SAMPLE_SKINS);
       } finally {
         setLoading(false);
       }
@@ -115,7 +110,7 @@ const Inventory = () => {
   }, []);
   
   // Calculate portfolio metrics
-  const totalValue = skins.reduce((total, skin) => total + skin.current_price, 0);
+  const totalValue = skins.reduce((total, skin) => total + skin.currentPrice, 0);
   const totalProfit = skins.reduce((total, skin) => total + skin.profitLoss, 0);
   const profitPercentage = totalValue > 0 ? (totalProfit / totalValue) * 100 : 0;
   
